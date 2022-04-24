@@ -9,7 +9,7 @@
     0. Make sure you have python3 installed
     1. cd into the C2 folder
     2. Create a virtual environtment with `python3 -m venv c2_env`
-    3. Acticate the virtual environment with `source c2_env/bin/activate`, or `c2_venv/bin/activate.ps1` if you are using powershell
+    3. Acticate the virtual environment with `source c2_env/bin/activate`, or `c2_env/Scripts/activate` if you are using powershell
     4. You can exit the virtual environtment with `deactivate`
     5. Install the dependencies with `pip3 install -r requirements.txt`
     6. Create a database with `python3 make_db.py`
