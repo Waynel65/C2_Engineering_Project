@@ -48,7 +48,6 @@ class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.String)
     password = db.Column(db.String)
-    
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
     # need to specify length of String if using MySQL; Feel free to change the length
