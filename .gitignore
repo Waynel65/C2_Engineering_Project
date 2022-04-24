@@ -1,4 +1,10 @@
 .DS_Store
-__pycache__/
+*/__pycache__/
 *.vscode
-rabbitMQ_test
+*/*.exe
+*.exe
+*/*.sqlite
+*/env/
+
+# this is a test folder for rabbitMQ
+*/rabbitMQ_test 
