@@ -5,3 +5,6 @@
 *.exe
 */*.sqlite
 */env/
+
+# this is a test folder for rabbitMQ
+*/rabbitMQ_test 
