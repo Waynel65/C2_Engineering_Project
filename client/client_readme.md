@@ -1,0 +1,1 @@
+Readme file for client (use this to leave development notes for others)
