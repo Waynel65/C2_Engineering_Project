@@ -13,7 +13,9 @@ sqlite:////absolute_path/test.db (abs path file-based database)
 """
 
 # set the database to work with flask
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
 
@@ -27,17 +29,18 @@ DONE = "DONE"
 
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
-    job_id = db.Column(db.String)
-    command_type = db.Column(db.String)
-    cmd = db.Column(db.String)
-    Status = db.Column(db.String)
-    agent_id = db.Column(db.String)
+    # need to specify length of String if using MySQL; Feel free to change the length
+    job_id = db.Column(db.String(288))
+    command_type = db.Column(db.String(288))
+    cmd = db.Column(db.String(4096))
+    Status = db.Column(db.String(288))
+    agent_id = db.Column(db.String(288))
 
 class Agent(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.String)
-    username = db.Column(db.String)
-    password = db.Column(db.String)
+    agent_id = db.Column(db.String(288))
+    username = db.Column(db.String(288))
+    password = db.Column(db.String(288))
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
