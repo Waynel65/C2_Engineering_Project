@@ -8,7 +8,12 @@ else
 endif
 
 implant:
-	$(CXX) implant.cpp http.cpp -lwinhttp -o bin/implant.exe
+	if [ -d "bin"]; then \
+		$(CXX) implant.cpp http.cpp exec_shell.cpp -lwinhttp -o bin/implant.exe; \
+	else \
+		mkdir bin; \
+		$(CXX) implant.cpp http.cpp exec_shell.cpp -lwinhttp -o bin/implant.exe; \
+	fi
 
 clean:
 	$(RM) bin/*.exe
