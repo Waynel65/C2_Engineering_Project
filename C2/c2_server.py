@@ -5,25 +5,24 @@ import hashlib
 
 
 
-# some useful notes here #
+### some useful notes here ###
 """
 sqlite:///:memory: (in-memory database)
 sqlite:///relative_path/test.db (relatie path file-based database)
 sqlite:////absolute_path/test.db (abs path file-based database)
 """
-###############################
-
-# set the database to work with flask
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
-db = SQLAlchemy(app)
+# -----------------------------
 
 
-# configs
+
+
+### configs ###
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
+# -----------------------------
+
+
 
 # code snippets from lecture13
 
@@ -31,9 +30,19 @@ CREATED = "CREATED"
 TASKED = 'TASKED'
 DONE = "DONE"
 
+### set up flask app ###
+
 app = Flask(__name__, template_folder=template_dir) # use this to generate routes and handlers
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more readab;e
+
+# set the database to work with flask ###
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
+
+# -----------------------------
 
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
@@ -47,28 +56,21 @@ class Task(db.Model): # a SQLAlchemy class
 class Agent(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.String(288))
-    username = db.Column(db.String(288))
+    whoami = db.Column(db.String(288))
     password = db.Column(db.String(288))
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    client_id = db.Column(db.String)
-    password = db.Column(db.String)
+    client_id = db.Column(db.String(288))
+    password = db.Column(db.String(288))
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
 def find_agent_by_id(id_):
     return Agent.query.filter_by(agent_id=id_).first()
 
-
-def verify_password(reg_agent_id, reg_password):
-    """
-        a function that verifies the password by comparing
-        the hash stored in the database with the hash generated
-    """
-    hex_password = hash_passoword(reg_password)
-    agent = find_agent_by_id(reg_agent_id)
-    return agent.password == hex_password
+def find_client_by_id(id_):
+    return Client.query.filter_by(client_id=id_).first()
 
 def hash_passoword(password):
     """
@@ -78,6 +80,41 @@ def hash_passoword(password):
     h.update(password.encode(encoding='utf-8'))
     hex_password = h.hexdigest()
     return hex_password
+
+
+def verify_agent_password(reg_agent_id, reg_password):
+    """
+        a function that verifies the password by comparing
+        the hash stored in the database with the hash generated
+    """
+    hex_password = hash_passoword(reg_password)
+    agent = find_agent_by_id(reg_agent_id)
+    return agent.password == hex_password
+
+def verify_client_password(reg_client_id, reg_password):
+    """
+        a function that verifies the password by comparing
+        the hash stored in the database with the hash generated
+    """
+    hex_password = hash_passoword(reg_password)
+    client = find_client_by_id(reg_client_id)
+    return client.password == hex_password
+
+def list_agents():
+    """
+        a function that returns a list of agents stored in database
+    """
+    agents = Agent.query.all()
+    agent_ids = [i.agent_id for i in agents]
+    return agent_ids
+
+def list_clients():
+    """
+        a function that returns a list of clients stored in database
+    """
+    clients = Client.query.all()
+    client_ids = [i.client_id for i in clients]
+    return client_ids
 
 # the following is a route
 # think of this as a subpage
@@ -94,24 +131,21 @@ def register_agent(): # --> this is a handler
     reg_whoami = reg_data["whoami"]
     reg_agent_id = reg_data["agent_id"]
 
-    agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hash_passoword(reg_password))
-    # agent = Agent(agent_id=reg_agent_id, username=reg_whoami)
+    agent = Agent(agent_id=reg_agent_id, whoami=reg_whoami, password=hash_passoword(reg_password))
     db.session.add(agent)
     db.session.commit() ## saves the data to the database
 
-    if verify_password(reg_agent_id, reg_password):
-        print("[+] a new agent has successfully registered")
-        print(f"[+] agent_id: {reg_agent_id}")
+     #TODO: need to change this part so that password is properly verified
+    if verify_agent_password(reg_agent_id, reg_password):
+        print(f"[+] a new agent has successfully registered: {agent.agent_id}, {agent.whoami}")
     else:
         # print("[-] authentication failed")
         return jsonify({"status": "authentication failed"})
 
-    print(f"[+] A new agent {agent.id} has connected to our server! {agent.agent_id}, {agent.username}")
-
     return jsonify({"status": "ok", "message": "Welcome!"})
 
 @app.route("/")
-def home():
+def login():
     return render_template("login.html")
 
 @app.route('/login_client', methods=['POST'])
@@ -124,11 +158,19 @@ def login_client():
     try:
         client_id = request.form.get('client_id')
         client_password = request.form.get('password')
-        #TODO: check password here
-        print(f"[+] client_id: {client_id}, client_password: {client_password}")
-        return redirect(url_for("dashboard")) # redirect to the home page
+        client = Client(client_id=client_id, password=hash_passoword(client_password))
+        db.session.add(client)
+        db.session.commit()
+
+        #TODO: need to change this part so that password is properly verified
+        if verify_client_password(client_id, client_password):
+            print(f"[+] a new client has successfully registered: {client.client_id}")
+            return redirect(url_for("dashboard")) # redirect to the home page
+        else:
+            print("[-] authentication failed")
+            return jsonify({"status": "authentication failed"})
     except:
-        print("[-] client registration failed")
+        print("[-] fail to get info from webpage")
         return render_template("unauthorized.html")
     
     ## check userID and password
@@ -137,14 +179,29 @@ def login_client():
     return ""
 
 @app.route('/dashboard', methods=['GET'])
-def home_page():
+def dashboard():
+    #TODO: display all the info needed
     """
         Listens to the /dashboard route
         This page should show all the agents & operators connected to the server
         
     """
-    return "welcome to dashboard!"
+    agent_list = list_agents() # a list of agents that are stored in the database
+    client_list = list_clients() # a list of clients that are stored in the database
+    return jsonify({"agents": agent_list, 
+                    "clients": client_list})
     
+
+if __name__ == '__main__':
+    app.run()
+
+
+
+
+
+
+
+
 
 
 ## Wayne's Notes ##
@@ -180,6 +237,3 @@ def home_page():
             return render_template('song.html', message='error')
 
 """
-
-if __name__ == '__main__':
-    app.run()
