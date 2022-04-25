@@ -209,9 +209,10 @@ def dashboard():
     """
     agent_list = list_agents() # a list of agents that are stored in the database
     client_list = list_clients() # a list of clients that are stored in the database
-    return jsonify({"agents": agent_list, 
+    info = jsonify({"agents": agent_list, 
                     "clients": client_list})
     
+    return info
 
 if __name__ == '__main__':
     app.run()
