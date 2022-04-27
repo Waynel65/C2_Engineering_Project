@@ -215,7 +215,8 @@ def dashboard():
     return info
 
 if __name__ == '__main__':
-    app.run()
+    # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses
+    app.run(ssl_context='adhoc') # run with TLS encryption 
 
 
 
