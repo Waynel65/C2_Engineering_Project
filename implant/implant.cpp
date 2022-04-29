@@ -6,7 +6,7 @@
 #include "exec_shell.h"
 
 LPCWSTR c2Domain = L"127.0.0.1";
-LPCWSTR registerURI = L"/register_agent";
+LPCWSTR registerURI = L"/agent/register";
 std::string password = "password";
 int port = 5000;
 std::string agentId;

