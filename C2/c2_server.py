@@ -2,6 +2,7 @@ from flask import Flask , request, jsonify, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
+import os 
 
 
 
@@ -154,6 +155,14 @@ def list_clients():
     client_ids = [i.client_id for i in clients]
     return client_ids
 
+def list_tasks():
+    """
+        a function that returns a list of tasks stored in database
+    """
+    tasks = Task.query.all()
+    t = [{"agent_id":i.agent_id, "status": i.status, "command_type": i.command_type, "cmd": i.cmd } for i in tasks]
+    return t
+
 
 @app.route('/agent/register', methods=["POST"]) # support only POST requests
 def register_agent(): # --> this is a handler
@@ -239,11 +248,11 @@ def get_results():
 
 
 
-@app.route("/")
-def login():
+@app.route("/", methods=["GET"])
+def login_page():
     return render_template("login.html")
 
-@app.route('/client/login', methods=['POST'])
+@app.route('/client/login', methods=["GET","POST"])
 def login_client():
     """
         listens to the /register_client route
@@ -283,8 +292,10 @@ def dashboard():
     """
     agent_list = list_agents() # a list of agents that are stored in the database
     client_list = list_clients() # a list of clients that are stored in the database
+    task_list = list_tasks() # a list of tasks that are stored in the database
     info = jsonify({"agents": agent_list, 
-                    "clients": client_list})
+                    "clients": client_list,
+                    "tasks": task_list})
     
     return info
 
@@ -308,7 +319,9 @@ def create_task():
     task = Task(
         command_type=command_type,
         cmd=cmd,
+        status=CREATED,
         agent_id=agent_id,
+        job_id=job_id
     )
     db.session.add(task)
     db.session.commit()

