@@ -11,7 +11,7 @@ implant:
 	$(CXX) implant.cpp http.cpp exec_shell.cpp -lwinhttp -o bin/implant.exe
 
 test:
-	$(CXX) test.cpp http.cpp exec_shell.cpp aesgcm.cpp -lwinhttp -lcrypt32 -lbcrypt -o bin/test.exe
+	$(CXX) -g test.cpp http.cpp exec_shell.cpp aesgcm.cpp -lwinhttp -lcrypt32 -lbcrypt -o bin/test.exe
 
 clean:
 	$(RM) bin/*.exe
