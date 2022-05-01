@@ -2,6 +2,8 @@ from flask import Flask , request, jsonify, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
+from aesgcm import encrypt, decrypt
+import json
 
 
 ### some useful notes here ###
@@ -19,6 +21,9 @@ sqlite:////absolute_path/test.db (abs path file-based database)
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
+aes_key = b"\x41\x13\xcd\xa3\xa0\xe0\xab\x5e\x19\xf1\xc0\x1c\x6d\x4e\x77\xc5\xe5\x20\xd2\x44\x0e\x52\xae\x87\xaa\x0a\x96\x67\x28\x82\xea\x08"
+iv_len = 12
+tag_len = 16
 # -----------------------------
 
 
@@ -85,6 +90,35 @@ class Agent(db.Model):
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
+
+def serialize(iv, tag, ct):
+    """
+        function to serialize response data
+    """
+
+    res = iv + tag + ct
+
+    return res
+
+def deserialize(byte_str):
+    """
+        function to deserialize request data
+    """
+    res = {}
+    res["iv"] = byte_str[:iv_len]
+    res["tag"] = byte_str[iv_len:tag_len + iv_len]
+    res["cipher"] = byte_str[iv_len + tag_len:]
+    return res
+
+def decrypt_data(byte_str):
+    data = deserialize(byte_str)
+    
+    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
+
+    plaintext = json.loads(plaintext.decode())
+    print(plaintext)
+
+
 def find_agent_by_id(id_):
     """
         a function that finds an agent in database by its id
