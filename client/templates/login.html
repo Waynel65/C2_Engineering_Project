@@ -6,7 +6,7 @@
     </head>
     <body>
         <h1>Welcome!</h1>
-        <form method="post" action="{{ url_for('/client/login')}}">
+        <form method="post" action="{{ url_for('login_client')}}">
             <label for="login_client"></label>
             <input type="client_id" name="client_id" placeholder="Enter Client ID Here" />
             <input type="password" name="password" placeholder="Enter Password Here" />

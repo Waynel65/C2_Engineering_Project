@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 
 
-
 ### some useful notes here ###
 """
 sqlite:///:memory: (in-memory database)
@@ -34,7 +33,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more rea
 # set the database to work with flask ###
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:WQap958910!@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
