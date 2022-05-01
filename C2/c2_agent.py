@@ -18,7 +18,8 @@ def register_agent(): # --> this is a handler
     reg_agent_id = reg_data["agent_id"]
 
     if not agent_exist(reg_agent_id): ## if agent does not exist already
-        agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hash_passoword(reg_password))
+        hashed_password, salt = hash_password(reg_password)
+        agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hashed_password, salt=salt)
         db.session.add(agent)
         db.session.commit() ## saves the data to the database
 
