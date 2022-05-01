@@ -27,19 +27,18 @@ def login_client():
         and processes the registration request from clients
     """
 
-    try:
-        client_id = request.form.get('client_id')
-        client_password = request.form.get('password')
+    client_id = request.form.get('client_id')
+    client_password = request.form.get('password')
+    if client_id == None or client_password == None:
+        return jsonify({"status": "failed to get data from client"})
+    if not client_exist(client_id):
         client = Client(client_id=client_id, password=hash_passoword(client_password))
         db.session.add(client)
         db.session.commit()
-    except:
-        print("[-] failed to get info from webpage")
-        return render_template("unauthorized.html")
 
     #TODO: need to change this part so that password is properly verified
     if verify_client_password(client_id, client_password):
-        print(f"[+] a new client has successfully registered: {client.client_id}")
+        print(f"[+] a new client has successfully registered: {client_id}")
         # flask.flash(f"Welcome {client.client_id}!")
         client = find_client_by_id(client_id)
         client.authenticated = True
@@ -48,7 +47,7 @@ def login_client():
         return redirect(url_for("dashboard")) # redirect to the home page
     else:
         print("[-] authentication failed")
-        return jsonify({"status": "authentication failed"})
+        return render_template("unauthorized.html")
     
     ## check userID and password
     ## if correct, grant access to home page

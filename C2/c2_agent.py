@@ -17,11 +17,12 @@ def register_agent(): # --> this is a handler
     reg_whoami = reg_data["whoami"]
     reg_agent_id = reg_data["agent_id"]
 
-    agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hash_passoword(reg_password))
-    db.session.add(agent)
-    db.session.commit() ## saves the data to the database
+    if not agent_exist(reg_agent_id): ## if agent does not exist already
+        agent = Agent(agent_id=reg_agent_id, username=reg_whoami, password=hash_passoword(reg_password))
+        db.session.add(agent)
+        db.session.commit() ## saves the data to the database
 
-     #TODO: need to change this part so that password is properly verified
+    #TODO: need to change this part so that password is properly verified
     if verify_agent_password(reg_agent_id, reg_password):
         print(f"[+] a new agent has successfully registered: {agent.agent_id}, {agent.username}")
     else:

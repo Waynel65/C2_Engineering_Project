@@ -1,4 +1,5 @@
-from c2_server import db
+from c2_config import db
+from c2_database import *
 
 ### you will only need to create the database once ###
 ### if it already exists, it will not be created again ###
