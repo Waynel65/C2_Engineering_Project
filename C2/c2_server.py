@@ -314,6 +314,15 @@ def create_task():
     print(f"[+] a new task has been created for agent {agent_id}")
     return jsonify({"status": "ok", "job_id": job_id})
 
+@app.route("/test", methods=["GET", "POST"])
+def test():
+    if request.method == "GET":
+        return b"\x1f\xc4\x4d\xa3\x55\xda\x0f\x32\xb6\xd2\x89\x7b\x22"
+    else:
+        data = request.data
+        print(data.hex())
+        return request.data
+
 
 if __name__ == '__main__':
     # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses

