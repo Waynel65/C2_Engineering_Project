@@ -4,7 +4,8 @@ from flask_login import LoginManager, login_required, login_user
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
-import os 
+import os
+from functools import wraps
 
 
 
@@ -20,6 +21,7 @@ sqlite:////absolute_path/test.db (abs path file-based database)
 
 
 ### configs ###
+APP_KEY = os.environ["APP_KEY"]
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
@@ -184,6 +186,15 @@ def list_tasks():
     t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, "command_type": i.command_type, "cmd": i.cmd } for i in tasks]
     return t
 
+def require_appkey(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        if request.args.get('app_key') and request.args.get('app_key') == APP_KEY:
+            return func(*args, **kwargs)
+        else:
+            print("[-] Missing AppKey or AppKey not match")
+            return jsonify({"status": "authentication failed"})
+    return decorator
 
 @app.route('/agent/register', methods=["POST"]) # support only POST requests
 def register_agent(): # --> this is a handler
@@ -294,6 +305,7 @@ def login_page():
     return render_template("login.html")
 
 @app.route('/client/login', methods=["GET","POST"])
+@require_appkey
 def login_client():
     """
         listens to the /register_client route
