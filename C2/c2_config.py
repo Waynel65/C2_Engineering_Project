@@ -4,7 +4,7 @@
 
 from flask import Flask , request, jsonify, redirect, render_template, url_for, session
 import flask_login
-from flask_login import LoginManager, login_required, login_user
+from flask_login import LoginManager, login_required, login_user, UserMixin
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib

@@ -35,21 +35,17 @@ class Task(db.Model): # a SQLAlchemy class
     cmd = db.Column(db.String(4096))
     job_status = db.Column(db.String(288))
 
-# Define models
-roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('client.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 class Client(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.String(288))
-    salt = db.Column(db.String(40))
+    salt = db.Column(db.LargeBinary(128))
     password = db.Column(db.String(288))
     
 
 class Agent(db.Model): 
     id               = db.Column(db.Integer, primary_key = True)
     agent_id         = db.Column(db.String(288))
-    salt             = db.Column(db.String(40))
+    salt             = db.Column(db.LargeBinary(128))
     password         = db.Column(db.String(288)) # secret key that verifies the agent with server
     computer_name    = db.Column(db.String(288)) # what computer did it connect from
     username         = db.Column(db.String(80)) # what user are you running as
@@ -102,10 +98,11 @@ def find_task_by_jobID(job_id):
     """
     return Task.query.filter_by(job_id=job_id).first()
 
-def hash_passoword(password):
+def hash_password(password):
     """
         given a password as a string, return the hashed version
     """
+    password = password.encode('utf-8')
     salt = os.urandom(32)
     digest = hashlib.pbkdf2_hmac('sha256', password, salt, 3)
     return digest.hex(), salt
@@ -114,6 +111,7 @@ def decrypt_password(password, salt):
     """
     given a password and a salt, reproduce the hash stroe in database
     """
+    password = password.encode('utf-8')
     digest = hashlib.pbkdf2_hmac('sha256', password, salt, 3)
     return digest.hex()
 

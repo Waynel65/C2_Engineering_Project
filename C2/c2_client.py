@@ -31,10 +31,11 @@ def login_client():
     client_password = request.form.get('password')
     if client_id == None or client_password == None:
         return jsonify({"status": "failed to get data from client"})
-    if not client_exist(client_id):
-        client = Client(client_id=client_id, password=hash_passoword(client_password))
-        db.session.add(client)
-        db.session.commit()
+    # if not client_exist(client_id):
+    #     hashed_password, salt = hash_password(client_password)
+    #     client = Client(client_id=client_id, password=hashed_password, salt=salt)
+    #     db.session.add(client)
+    #     db.session.commit()
 
     #TODO: need to change this part so that password is properly verified
     if verify_client_password(client_id, client_password):
