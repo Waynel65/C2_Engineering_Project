@@ -8,7 +8,7 @@ else
 endif
 
 implant:
-	$(CXX) implant.cpp http.cpp exec_shell.cpp -lwinhttp -o bin/implant.exe
+	$(CXX) -std=c++11 -g implant.cpp http.cpp exec_shell.cpp aesgcm.cpp -lwinhttp  -lcrypt32 -lbcrypt -o bin/implant.exe
 
 test:
 	$(CXX) -std=c++11 -g test.cpp http.cpp exec_shell.cpp aesgcm.cpp -lwinhttp -lcrypt32 -lbcrypt -o bin/test.exe
