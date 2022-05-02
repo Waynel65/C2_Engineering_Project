@@ -10,6 +10,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 import os
 from functools import wraps
+from aesgcm import encrypt, decrypt
 
 
 ### configs ###
