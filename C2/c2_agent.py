@@ -10,10 +10,7 @@ def load_user(user_id):
     """
        a required function for flask-login
     """
-    if not agent_exist(user_id):
-        return None
-    else:
-        return find_agent_by_id(user_id)
+    return Agent.query.get(user_id)
 
 @app.route('/agent/register', methods=["POST"]) # support only POST requests
 def register_agent(): # --> this is a handler
@@ -51,7 +48,7 @@ def register_agent(): # --> this is a handler
 
 
 @app.route('/agent/send_task', methods=['POST'])
-# @login_required
+# @login_required => this might only work with redirecting
 def send_task():
     """
         listens to the /task route
@@ -83,7 +80,7 @@ def send_task():
         return jsonify({"job_id": task.job_id,"command_type": task.command_type, "cmd": task.cmd, "status": "ok"})
     
 @app.route('/agent/get_results', methods=['POST'])
-# @login_required
+# @login_required => this might only work with redirecting
 def get_results():
     """
         listens to the /task_results route

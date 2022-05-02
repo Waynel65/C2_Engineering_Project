@@ -119,6 +119,8 @@ def verify_agent_password(reg_agent_id, reg_password):
         a function that verifies the password by comparing
         the hash stored in the database with the hash generated
     """
+    if not agent_exist(reg_agent_id):
+        return False
     agent = find_agent_by_id(reg_agent_id)
     hex_password = decrypt_password(reg_password, agent.salt)
     return agent.password == hex_password
@@ -128,6 +130,8 @@ def verify_client_password(reg_client_id, reg_password):
         a function that verifies the password by comparing
         the hash stored in the database with the hash generated
     """
+    if not client_exist(reg_client_id):
+        return False
     client = find_client_by_id(reg_client_id)
     hex_password = decrypt_password(reg_password, client.salt)
     return client.password == hex_password

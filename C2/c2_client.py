@@ -10,17 +10,13 @@ def load_user(user_id):
     """
        a required function for flask-login
     """
-    if not client_exist(user_id):
-        return None
-    else:
-        return find_client_by_id(user_id)
+    return Client.query.get(user_id)
 
 @app.route("/", methods=["GET"])
 def login_page():
     return render_template("login.html")
 
 @app.route('/client/login', methods=["GET","POST"])
-# @require_appkey
 def login_client():
     """
         listens to the /register_client route
@@ -31,6 +27,7 @@ def login_client():
     client_password = request.form.get('password')
     if client_id == None or client_password == None:
         return jsonify({"status": "failed to get data from client"})
+    client = find_client_by_id(client_id)
     # if not client_exist(client_id):
     #     hashed_password, salt = hash_password(client_password)
     #     client = Client(client_id=client_id, password=hashed_password, salt=salt)
@@ -44,7 +41,6 @@ def login_client():
         client = find_client_by_id(client_id)
         client.authenticated = True
         login_user(client) ## user loader function required from flask-login
-
         return redirect(url_for("dashboard")) # redirect to the home page
     else:
         print("[-] authentication failed")
@@ -52,6 +48,8 @@ def login_client():
     
     ## check userID and password
     ## if correct, grant access to home page
+
+    return ""
 
 @app.route('/client/dashboard', methods=['GET'])
 @login_required
@@ -72,6 +70,6 @@ def dashboard():
     return info
 
 @app.route('/client/logout', methods=['GET'])
-@login_required
+# @login_required
 def logout():
     pass
