@@ -13,7 +13,7 @@ from functools import wraps
 
 
 ### configs ###
-APP_KEY = os.environ["APP_KEY"]
+# APP_KEY = os.environ["APP_KEY"]
 password = "ch0nky" # a temperary password to test the server
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
