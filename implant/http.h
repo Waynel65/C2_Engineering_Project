@@ -3,6 +3,11 @@
 
 #include <windows.h>
 #include <string>
+#include <vector>
+
+std::vector<BYTE> encryptPayload(std::string message); 
+
+std::string decryptPayload(std::vector<BYTE> payload);
 
 std::string httpGet(LPCWSTR fqdn, int port, LPCWSTR uri);
 
