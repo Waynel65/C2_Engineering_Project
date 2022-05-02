@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 from aesgcm import encrypt, decrypt
 import json
+from creds import db_cred
 
 
 ### some useful notes here ###
@@ -38,7 +39,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more rea
 # set the database to work with flask ###
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:WQap958910!@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_cred["username"]}:{db_cred["password"]}@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
