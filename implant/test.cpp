@@ -1,7 +1,7 @@
 #include "exec_shell.h"
 #include "aes_gcm.h"
 #include "http.h"
-#include "inject.cpp"
+#include "inject.h"
 #include <iostream>
 
 // BYTE textIV[] = {0x87, 0xb8, 0xa9, 0xa6, 0xc2, 0x39, 0x42, 0x5f, 0xc2, 0xda, 0x8c, 0xc1};

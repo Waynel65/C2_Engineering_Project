@@ -1,8 +1,6 @@
-#ifndef EXEC_SHELL
-#define EXEC_SHELL
+#ifndef INJECT_PROC
+#define INJECT_PROC
 
-
-#define BUF_SIZE 4096
 
 #include <windows.h>
 #include <stdio.h>

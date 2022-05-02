@@ -1,6 +1,5 @@
 #include "inject.h"
 #include <iostream>
-#include <windows.h>
 
 void inject(char* shellcode)
 {
