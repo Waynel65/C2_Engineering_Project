@@ -10,7 +10,10 @@ BYTE key[] = {0x41, 0x13, 0xcd, 0xa3, 0xa0, 0xe0, 0xab, 0x5e, 0x19, 0xf1, 0xc0, 
 
 void printBytes(BYTE* bytes, int size) {
     for (int i = 0; i < size; i++) {
-        printf("%x ", bytes[i]);
+        if (i == 12 || i == 28) {
+            printf("\n");
+        }
+        printf("\\x%x", bytes[i]);
     }
     printf("\n");
 }
@@ -143,10 +146,11 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     DWORD headerLen = 0;
     LPVOID opData = WINHTTP_NO_REQUEST_DATA;
     DWORD opDataLen = 0;
+    std::vector<BYTE> opDataVec;
     if (verb == L"POST") {
         header = L"Content-Type: text/plain\r\n";
         headerLen = -1L;
-        std::vector<BYTE> opDataVec = encryptPayload(data);
+        opDataVec = encryptPayload(data);
         // printBytes(opDataVec.data(), opDataVec.size());
         opData = opDataVec.data();
         opDataLen = opDataVec.size();
