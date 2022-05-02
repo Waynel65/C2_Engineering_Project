@@ -1,6 +1,7 @@
 #include "exec_shell.h"
 #include "aes_gcm.h"
 #include "http.h"
+#include "inject.cpp"
 #include <iostream>
 
 // BYTE textIV[] = {0x87, 0xb8, 0xa9, 0xa6, 0xc2, 0x39, 0x42, 0x5f, 0xc2, 0xda, 0x8c, 0xc1};
@@ -92,6 +93,13 @@ void test_http() {
 
     // std::string decrypted = decryptPayload(testVec);
     // std::cout << decrypted << std::endl;
+}
+
+void test_inject()
+{
+    std::cout << getProcID() << std::endl;
+    char* shellcode;
+    // inject(shellcode);
 }
 
 int main(int argc, char* argv[])
