@@ -102,6 +102,11 @@ void test_inject()
     // inject(shellcode);
 }
 
+void test_spawn_process() {
+    std::string exePath = "C:\\Windows\\system32\\cmd.exe";
+    spawnProcess(exePath);
+}
+
 int main(int argc, char* argv[])
 {   
     if (argc != 2) {
@@ -117,6 +122,8 @@ int main(int argc, char* argv[])
         test_aesgcm();
     } else if (test_name == "http") {
         test_http();
+    } else if (test_name == "spawn") {
+        test_spawn_process();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
