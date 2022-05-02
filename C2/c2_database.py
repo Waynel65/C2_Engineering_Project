@@ -42,7 +42,7 @@ class Client(db.Model, UserMixin):
     password = db.Column(db.String(288))
     
 
-class Agent(db.Model): 
+class Agent(db.Model, UserMixin): 
     id               = db.Column(db.Integer, primary_key = True)
     agent_id         = db.Column(db.String(288))
     salt             = db.Column(db.LargeBinary(128))
@@ -58,7 +58,6 @@ class Agent(db.Model):
     first_seen       = db.Column(db.DateTime)    # when did the agent first check in
     last_seen        = db.Column(db.DateTime)    # when was the last time you saw the agent
     expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again
-    #TODO            : a func to generate a new python datatime for expected checkin
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/

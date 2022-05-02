@@ -10,7 +10,7 @@ def load_user(user_id):
     """
        a required function for flask-login
     """
-    if not client_exist:
+    if not client_exist(user_id):
         return None
     else:
         return find_client_by_id(user_id)
@@ -43,7 +43,7 @@ def login_client():
         # flask.flash(f"Welcome {client.client_id}!")
         client = find_client_by_id(client_id)
         client.authenticated = True
-        login_user(client) ## user loader function from flask-login
+        login_user(client) ## user loader function required from flask-login
 
         return redirect(url_for("dashboard")) # redirect to the home page
     else:
@@ -52,8 +52,6 @@ def login_client():
     
     ## check userID and password
     ## if correct, grant access to home page
-    
-    return ""
 
 @app.route('/client/dashboard', methods=['GET'])
 @login_required
