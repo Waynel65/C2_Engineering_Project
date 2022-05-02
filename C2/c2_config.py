@@ -11,7 +11,7 @@ import hashlib
 import os
 from functools import wraps
 from aesgcm import encrypt, decrypt
-
+from creds import db_cred
 
 ### configs ###
 # APP_KEY = os.environ["APP_KEY"]
@@ -36,8 +36,45 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more rea
 # set the database to work with flask ###
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:WQap958910!@localhost/c2_server' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_cred["username"]}:{db_cred["password"]}@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
 # -----------------------------
+
+# util functions
+def serialize(iv, tag, ct):
+    """
+        function to serialize response data
+    """
+
+    res = iv + tag + ct
+
+    return res
+
+def deserialize(byte_str):
+    """
+        function to deserialize request data
+    """
+    res = {}
+    res["iv"] = byte_str[:iv_len]
+    res["tag"] = byte_str[iv_len:tag_len + iv_len]
+    res["cipher"] = byte_str[iv_len + tag_len:]
+    return res
+
+def decrypt_data(byte_str):
+    data = deserialize(byte_str)
+    
+    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
+
+    plaintext = json.loads(plaintext.decode())
+    # print(plaintext)
+
+    return plaintext
+
+def encrypt_data(data):
+    byte_data = json.dumps(data).encode()
+    iv, ct, tag = encrypt(aes_key, byte_data)
+    serialized = serialize(iv, tag, ct)
+
+    return serialized

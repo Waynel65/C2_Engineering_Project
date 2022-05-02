@@ -16,34 +16,10 @@ from c2_task import *
 #             return jsonify({"status": "authentication failed"})
 #     return decorator
 
-def serialize(iv, tag, ct):
-    """
-        function to serialize response data
-    """
-
-    res = iv + tag + ct
-
-    return res
-
-def deserialize(byte_str):
-    """
-        function to deserialize request data
-    """
-    res = {}
-    res["iv"] = byte_str[:iv_len]
-    res["tag"] = byte_str[iv_len:tag_len + iv_len]
-    res["cipher"] = byte_str[iv_len + tag_len:]
-    return res
-
-def decrypt_data(byte_str):
-    data = deserialize(byte_str)
-    
-    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
-
-    # plaintext = json.loads(plaintext.decode())
-    # print(plaintext)
-
-    return plaintext
+def printBytes(data):
+    print(data[0:12])
+    print(data[12:28])
+    print(data[28:])
 
 @app.route("/test", methods=["GET", "POST"])
 def test():
@@ -52,8 +28,9 @@ def test():
         return payload
     else:
         message = decrypt_data(request.data) 
+        print(type(message))
         print(message)
-        return request.data
+        return encrypt_data(message)
         
 if __name__ == '__main__':
     # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses
