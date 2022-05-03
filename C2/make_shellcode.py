@@ -10,4 +10,10 @@ def make_shellcode(file, method):
         method=method
     )
 
+    with open("test.bin", "wb") as f:
+        f.write(shellcode)
+    print(shellcode)
     return shellcode
+
+if __name__ == "__main__":
+    make_shellcode("test.dll", "IAmAGoodNoodle")
