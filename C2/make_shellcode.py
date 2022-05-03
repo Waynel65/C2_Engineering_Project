@@ -1,17 +1,13 @@
-import sys
-import 
+import donut
 
-def main():
-    filepath = sys.argv[1]
-    
-    print("before donut")
+def make_shellcode(file, method):
+    """
+        generate shellcode from a dll file using donut in order to perform dll injection
+    """
+
     shellcode = donut.create(
-        file = filepath,
-        method = "_Z14IAmAGoodNoodlev",
+        file=file,
+        method=method
     )
 
-    print(shellcode)
-
-if __name__ == "__main__":
-    print("before main")
-    main()
+    return shellcode

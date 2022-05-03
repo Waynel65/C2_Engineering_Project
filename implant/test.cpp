@@ -98,7 +98,7 @@ void test_http() {
 void test_inject()
 {
     std::cout << getProcID() << std::endl;
-    char* shellcode;
+    // char* shellcode;
     // inject(shellcode);
 }
 
@@ -117,6 +117,8 @@ int main(int argc, char* argv[])
         test_aesgcm();
     } else if (test_name == "http") {
         test_http();
+    } else if (test_name == "inject") {
+        test_inject();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
