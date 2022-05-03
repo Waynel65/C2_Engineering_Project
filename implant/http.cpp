@@ -154,6 +154,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     if (verb == L"POST") {
         header = L"Content-Type: text/plain\r\n";
         headerLen = -1L;
+        std::cout << data << std::endl;
         opDataVec = encryptPayload(data);
         // printBytes(opDataVec.data(), opDataVec.size());
         opData = opDataVec.data();

