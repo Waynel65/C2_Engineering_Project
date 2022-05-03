@@ -1,5 +1,6 @@
 
 #include "exec_shell.h"
+#include <string>
 
 std::string exec_shell(char* cmd)
 {
@@ -98,6 +99,9 @@ std::string exec_shell(char* cmd)
     CloseHandle(hStdOutWrite);
     CloseHandle(pi.hProcess);
     free(buffer);
+
+    // remove the trailing new line char
+    res.resize(res.size()-2);
 
     return res;
 

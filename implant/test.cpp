@@ -139,6 +139,7 @@ void test_inject()
     
     std::string exePath = "C:\\WINDOWS\\system32\\cmd.exe";
     // std::cout << shellcode << std::endl;
+    
     inject(exePath, shellcode);
 }
 
