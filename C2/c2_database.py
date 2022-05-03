@@ -153,11 +153,13 @@ def list_clients():
     client_ids = [i.client_id for i in clients]
     return client_ids
 
-def list_tasks():
+#TODO: list tasks by agent
+def list_tasks(target_agent_id):
     """
         a function that returns a list of tasks stored in database
     """
-    tasks = Task.query.all()
+    tasks = Task.query.filter_by(agent_id=target_agent_id)
+    # tasks = Task.query.all()
     t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, 
             "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
     return t

@@ -88,7 +88,7 @@ def send_task():
     
 @app.route('/agent/send_results', methods=['POST'])
 # @login_required => this might only work with redirecting
-def get_results():
+def send_results():
     """
         listens to the /task_results route
         When an implant sends back the results of a task, this function will store the results
@@ -118,4 +118,3 @@ def get_results():
     task.job_status = DONE
     db.session.commit()
     return encrypt_data({"status": "ok"})
-    # <<< Ours <<<
