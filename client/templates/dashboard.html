@@ -4,10 +4,32 @@
       <meta charset="UTF-8">
       <title>Dashboard</title>
     </head>
+    <style>
+      table, th, td {
+        border:1px solid black;
+      }
+    </style>
     <body>
         <h1>Welcome!</h1>
         <p>The following is a list of agents and clients connected to the server</p>
-        {% if info %}
-            {"info": "agents"}
-        {% endif %}
+        <table>
+          <tr>
+            <th> Victim Machine Name</th>
+            <th> Agent ID </th>
+            <th> Operations </th>
+          </tr>
+          {% for agent in info %}
+            <tr>
+                <td>{{ agent.victim_machine_user }}</td>
+                <td>{{ agent.agent_id }}</td>
+                <td> 
+                  <form method="post" action="{{ url_for('operation')}}">
+                    <input type="hidden" name="agent_id" value="{{ agent.agent_id }}">
+                    <input type="submit" value="operation" />
+                  </form>
+                </td>
+            </tr>
+          {% endfor %}
+        </table>
+
     </body>

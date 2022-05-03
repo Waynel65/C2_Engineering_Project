@@ -142,7 +142,7 @@ def list_agents():
         a function that returns a list of agents stored in database
     """
     agents = Agent.query.all()
-    agent_ids = [{"victim machine user": i.computer_name, "agent_id": i.agent_id} for i in agents]
+    agent_ids = [{"victim_machine_user": i.computer_name, "agent_id": i.agent_id} for i in agents]
     return agent_ids
 
 def list_clients():
