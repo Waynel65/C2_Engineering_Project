@@ -10,7 +10,7 @@
 
 // function to inject shellcode into process
 void inject(char* shellcode);
-void inject(char* shellcode, int pid);
+void inject(std::string exePath, unsigned char* shellcode);
 
 // function to get remote process ID for injection
 int getProcID();
