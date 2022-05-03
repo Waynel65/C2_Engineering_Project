@@ -63,11 +63,28 @@ def dashboard():
     agent_list = list_agents() # a list of agents that are stored in the database
     client_list = list_clients() # a list of clients that are stored in the database
     task_list = list_tasks() # a list of tasks that are stored in the database
-    info = jsonify({"agents": agent_list, 
-                    "clients": client_list,
-                    "tasks": task_list})
+    # info = jsonify({"agents": agent_list, 
+    #                 "clients": client_list,
+    #                 "tasks": task_list})
+
+    return render_template("dashboard.html", info=agent_list)
     
-    return info
+    # return info
+
+@app.route('/client/operation', methods=['POST'])
+def operation():
+    """
+        listens to the /operation route
+        This page should show all the agents & operators connected to the server
+    """
+    agent_id = request.form.get('agent_id')
+    if agent_id == None:
+        return jsonify({"status": "failed to get data from client"})
+    # print("agent_id:", agent_id)
+    task = find_agent_task(agent_id)
+    if task == None:
+        return jsonify({"status": "no task assigned to this agent"})
+    return jsonify({"job_id": task.job_id, "command_type": task.command_type, "cmd": task.cmd})
 
 @app.route('/client/logout', methods=['GET'])
 # @login_required

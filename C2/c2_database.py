@@ -34,6 +34,7 @@ class Task(db.Model): # a SQLAlchemy class
     command_type = db.Column(db.String(288))
     cmd = db.Column(db.String(4096))
     job_status = db.Column(db.String(288))
+    job_results = db.Column(db.String(4096))
 
 class Client(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -141,7 +142,7 @@ def list_agents():
         a function that returns a list of agents stored in database
     """
     agents = Agent.query.all()
-    agent_ids = [i.agent_id for i in agents]
+    agent_ids = [{"victim_machine_user": i.computer_name, "agent_id": i.agent_id} for i in agents]
     return agent_ids
 
 def list_clients():
@@ -157,5 +158,6 @@ def list_tasks():
         a function that returns a list of tasks stored in database
     """
     tasks = Task.query.all()
-    t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, "command_type": i.command_type, "cmd": i.cmd } for i in tasks]
+    t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, 
+            "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
     return t

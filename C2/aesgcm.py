@@ -1,4 +1,6 @@
 import os
+import json
+from c2_config import iv_len, aes_key, tag_len
 
 from cryptography.hazmat.primitives.ciphers import (
     Cipher, algorithms, modes
@@ -31,6 +33,44 @@ def decrypt(key, iv, ciphertext, tag):
 
     # return the decrypted plaintext
     return decryptor.update(ciphertext) + decryptor.finalize()
+
+def serialize(iv, tag, ct):
+    """
+        function to serialize response data
+    """
+
+    res = iv + tag + ct
+
+    return res
+
+def deserialize(byte_str):
+    """
+        function to deserialize request data
+    """
+    res = {}
+    res["iv"] = byte_str[:iv_len]
+    res["tag"] = byte_str[iv_len:tag_len + iv_len]
+    res["cipher"] = byte_str[iv_len + tag_len:]
+    return res
+
+def decrypt_data(byte_str):
+
+    data = deserialize(byte_str)
+    
+    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
+
+    plaintext = json.loads(plaintext.decode())
+
+    return plaintext
+
+def encrypt_data(data):
+
+    byte_data = json.dumps(data).encode()
+    iv, ct, tag = encrypt(aes_key, byte_data)
+    serialized = serialize(iv, tag, ct)
+    # print("type of serialized: ", type(serialized))
+    return serialized
+
 
 # key = os.urandom(32)
 

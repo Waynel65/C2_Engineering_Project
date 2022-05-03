@@ -4,6 +4,11 @@ from c2_agent import *
 from c2_client import *
 from c2_task import *
 
+"""
+    This is now the c2_server.py file that we used to work on 
+    (It is named app.py because flask recognizes this name easier)
+"""
+
 
 
 # def require_appkey(func):
