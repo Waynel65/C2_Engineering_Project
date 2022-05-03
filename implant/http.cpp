@@ -105,7 +105,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
 
     if (hSession == NULL) {
         printf("Error: could not create http session\n");
-        return NULL;
+        return "Error";
     } 
 
     HINTERNET hConnect = WinHttpConnect(
@@ -117,7 +117,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
 
     if (hConnect == NULL) {
         printf("Error: could not connect to server\n");
-        return NULL;
+        return "Error";
     } 
 
     DWORD useTLS = 0;
@@ -134,7 +134,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
 
     if (hRequest == NULL) {
         printf("Error: could not open request\n");
-        return NULL;
+        return "Error";
     } 
 
     // LPVOID options = SECURITY_FLAG_IGNORE_UNKNOWN_CA | 
@@ -168,14 +168,14 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
 
     if (!bResults) {
         printf("Error: could not send request\n");
-        return NULL;
+        return "Error";
     } 
 
     bResults = WinHttpReceiveResponse(hRequest, NULL);
 
     if (!bResults) {
         printf("Error: could not receive response\n");
-        return NULL;
+        return "Error";
     }
 
     DWORD dwSize = 0;
@@ -183,7 +183,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     
     if (buffer == NULL) {
         printf("Error: could not allocate memory\n");
-        return NULL;
+        return "Error";
     }
 
     while (TRUE) {
@@ -191,7 +191,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
 
         if (!WinHttpQueryDataAvailable( hRequest, &dwSize)) {
             printf( "Error: WinHttpQueryDataAvailable.\n");
-            return NULL;
+            return "Error";
         }
 
         if (dwSize <= 0) break;

