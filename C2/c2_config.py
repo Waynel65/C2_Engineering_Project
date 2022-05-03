@@ -10,7 +10,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
 import os
 from functools import wraps
-from aesgcm import encrypt, decrypt
+import json
+# from aesgcm import encrypt, decrypt
 from creds import db_cred
 
 ### configs ###
@@ -42,39 +43,39 @@ db = SQLAlchemy(app)
 
 # -----------------------------
 
-# util functions
-def serialize(iv, tag, ct):
-    """
-        function to serialize response data
-    """
+# # util functions
+# def serialize(iv, tag, ct):
+#     """
+#         function to serialize response data
+#     """
 
-    res = iv + tag + ct
+#     res = iv + tag + ct
 
-    return res
+#     return res
 
-def deserialize(byte_str):
-    """
-        function to deserialize request data
-    """
-    res = {}
-    res["iv"] = byte_str[:iv_len]
-    res["tag"] = byte_str[iv_len:tag_len + iv_len]
-    res["cipher"] = byte_str[iv_len + tag_len:]
-    return res
+# def deserialize(byte_str):
+#     """
+#         function to deserialize request data
+#     """
+#     res = {}
+#     res["iv"] = byte_str[:iv_len]
+#     res["tag"] = byte_str[iv_len:tag_len + iv_len]
+#     res["cipher"] = byte_str[iv_len + tag_len:]
+#     return res
 
-def decrypt_data(byte_str):
-    data = deserialize(byte_str)
+# def decrypt_data(byte_str):
+#     data = deserialize(byte_str)
     
-    plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
+#     plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
 
-    plaintext = json.loads(plaintext.decode())
-    # print(plaintext)
+#     plaintext = json.loads(plaintext.decode())
+#     # print(plaintext)
 
-    return plaintext
+#     return plaintext
 
-def encrypt_data(data):
-    byte_data = json.dumps(data).encode()
-    iv, ct, tag = encrypt(aes_key, byte_data)
-    serialized = serialize(iv, tag, ct)
+# def encrypt_data(data):
+#     byte_data = json.dumps(data).encode()
+#     iv, ct, tag = encrypt(aes_key, byte_data)
+#     serialized = serialize(iv, tag, ct)
 
-    return serialized
+#     return serialized

