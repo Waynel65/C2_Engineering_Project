@@ -15,4 +15,6 @@ void inject(char* shellcode, int pid);
 // function to get remote process ID for injection
 int getProcID();
 
+void spawnProcess(std::string exePath);
+
 #endif

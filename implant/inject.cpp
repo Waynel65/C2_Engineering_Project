@@ -42,4 +42,35 @@ int getProcID()
     std::cout << cProcesses << std::endl;
     // return cProcesses;
     return notepad_id;
+
+}
+
+void spawnProcess(std::string exePath) {
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    ZeroMemory( &pi, sizeof(pi) );
+
+    if( !CreateProcessA( 
+        exePath.data(),   
+        NULL,         
+        NULL,            
+        NULL,            
+        FALSE,          
+        CREATE_NO_WINDOW,             
+        NULL,           
+        NULL,
+        &si,
+        &pi
+    )) {
+        printf( "CreateProcess failed (%d).\n", GetLastError() );
+        return;
+    }
+
+    std::cout << pi.dwProcessId << std::endl;
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
 }
