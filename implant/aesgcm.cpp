@@ -67,7 +67,7 @@ AESGCM::AESGCM( BYTE key[AES_256_KEY_SIZE]){
 }
 
 
-void AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen){
+BOOL AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen){
     // change me
 
     BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO authInfo;
@@ -93,12 +93,14 @@ void AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, B
 
     if (!NT_SUCCESS(nStatus)) {
         printf("Error decrypt 0x%x: could not get output buffer size\n", nStatus);
+        return FALSE;
     } 
 
     plaintext = (BYTE *)malloc(ptBufferSize);
 
     if (plaintext == NULL) {
         printf("Error: could not allocate memory\n");
+        return FALSE;
     }
 
     nStatus = ::BCryptDecrypt(
@@ -116,11 +118,13 @@ void AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, B
 
     if (!NT_SUCCESS(nStatus)) {
         printf("Error 0x%x: could not decrypt\n", nStatus);
+        return FALSE;
     } 
 
+    return TRUE;
 }
 
-void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
+BOOL AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
    // change me
 
     ULONG bufferSize;
@@ -130,6 +134,7 @@ void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
 
     if (tag == NULL) {
         printf("Error: could not allocate memory\n");
+        return FALSE;
     }
 
     // initialize authentification info
@@ -157,6 +162,7 @@ void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
 
     if (!NT_SUCCESS(nStatus)) {
         printf("Error encrypt 0x%x: could not get output buffer size\n", nStatus);
+        return FALSE;
     } 
 
     ciphertext = (BYTE*)malloc(bufferSize);
@@ -164,6 +170,7 @@ void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
 
     if (ciphertext == NULL) {
         printf("Error: could not allocate memory\n");
+        return FALSE;
     }
 
     ULONG result;
@@ -182,8 +189,10 @@ void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
 
     if (!NT_SUCCESS(nStatus)) {
         printf("Error 0x%x: could not encrypt\n", nStatus);
+        return FALSE;
     } 
 
+    return TRUE;
 }
 
 void AESGCM::Cleanup(){

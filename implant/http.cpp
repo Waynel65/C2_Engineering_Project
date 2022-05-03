@@ -75,12 +75,12 @@ std::string decryptPayload(std::vector<BYTE> payload) {
     return message;
 }
 
-std::string httpGet(LPCWSTR fqdn, int port, LPCWSTR uri){
-    return httpRequest(L"GET", fqdn, port, uri, "");
+std::string httpGet(LPCWSTR fqdn, int port, LPCWSTR uri, BOOL useTLS){
+    return httpRequest(L"GET", fqdn, port, uri, "", useTLS);
 }
 
-std::string httpPost(LPCWSTR fqdn, int port, LPCWSTR uri, std::string data) {
-    return httpRequest(L"POST", fqdn, port, uri, data);
+std::string httpPost(LPCWSTR fqdn, int port, LPCWSTR uri, std::string data, BOOL useTLS) {
+    return httpRequest(L"POST", fqdn, port, uri, data, useTLS);
 }
 
 /**
@@ -93,7 +93,7 @@ std::string httpPost(LPCWSTR fqdn, int port, LPCWSTR uri, std::string data) {
  * @param data optional data used only in POST request
  * @return std::string data receive from server
  */
-std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::string data){
+std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::string data, BOOL useTLS){
     std::vector<BYTE> result;
 
     HINTERNET hSession = WinHttpOpen(
@@ -104,7 +104,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
         0);
 
     if (hSession == NULL) {
-        printf("Error: could not create http session\n");
+        printf("Error %d: could not create http session\n", GetLastError());
         return "Error";
     } 
 
@@ -116,12 +116,16 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     );
 
     if (hConnect == NULL) {
-        printf("Error: could not connect to server\n");
+        printf("Error %d: could not connect to server\n", GetLastError());
         return "Error";
     } 
 
-    DWORD useTLS = 0;
-    // DWORD useTLS = WINHTTP_FLAG_SECURE;
+    DWORD tlsFlag;
+    if (useTLS) {
+        tlsFlag = WINHTTP_FLAG_SECURE;
+    } else {
+        tlsFlag = 0;
+    }
     HINTERNET hRequest = WinHttpOpenRequest(
         hConnect,
         verb,
@@ -129,11 +133,11 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
         NULL,
         WINHTTP_NO_REFERER,
         WINHTTP_DEFAULT_ACCEPT_TYPES,
-        useTLS
+        tlsFlag
     );
 
     if (hRequest == NULL) {
-        printf("Error: could not open request\n");
+        printf("Error %d: could not open request\n", GetLastError());
         return "Error";
     } 
 
@@ -167,14 +171,14 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     char* cp = (char*)opData;
 
     if (!bResults) {
-        printf("Error: could not send request\n");
+        printf("Error %d: could not send request\n", GetLastError());
         return "Error";
     } 
 
     bResults = WinHttpReceiveResponse(hRequest, NULL);
 
     if (!bResults) {
-        printf("Error: could not receive response\n");
+        printf("Error %d: could not receive response\n", GetLastError());
         return "Error";
     }
 
@@ -182,7 +186,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
     char* buffer = (char*)malloc(4096);
     
     if (buffer == NULL) {
-        printf("Error: could not allocate memory\n");
+        printf("Error %d: could not allocate memory\n", GetLastError());
         return "Error";
     }
 
@@ -190,7 +194,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
         dwSize = 0;
 
         if (!WinHttpQueryDataAvailable( hRequest, &dwSize)) {
-            printf( "Error: WinHttpQueryDataAvailable.\n");
+            printf( "Error %d: WinHttpQueryDataAvailable.\n", GetLastError());
             return "Error";
         }
 
@@ -199,7 +203,7 @@ std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::
         DWORD bytesRead;
 
         if (!WinHttpReadData(hRequest, buffer, 4096, &bytesRead)) {
-            printf("Error: could not read data because %d\n", GetLastError());
+            printf("Error %d: could not read data\n", GetLastError());
         }
 
         if (bytesRead > 0) {

