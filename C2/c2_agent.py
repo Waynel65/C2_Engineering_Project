@@ -105,10 +105,19 @@ def get_task():
     if task == None:
         return encrypt_data({"status": "no task"})
     else:
-        task.job_status = TASKED
-        db.session.commit()
-        return encrypt_data({"job_id": task.job_id,"command_type": task.command_type, "cmd": task.cmd, "status": "ok"})
-    
+        #TODO: get list of task 
+        tasks = list_tasks(agent_id)
+        tasks_out = []
+        for i in tasks:
+            #TODO: update job status in db
+            temp = {"job_id": i.job_id,
+            "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results }
+            i.job_status = TASKED
+            db.session.commit()
+            tasks_out.append(temp)
+        return encrypt_data({"tasks": tasks_out, "status":"ok"})
+        # return encrypt_data({"job_id": task.job_id,"command_type": task.command_type, "cmd": task.cmd, "status": "ok"})
+
 @app.route('/agent/send_results', methods=['POST'])
 # @login_required => this might only work with redirecting
 def send_results():
