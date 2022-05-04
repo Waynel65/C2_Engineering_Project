@@ -1,17 +1,16 @@
 <!doctype html>
   <html lang="en">
     <head>
+      <link rel="stylesheet" href="../static/css/dashboard.css">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
       <meta charset="UTF-8">
       <title>Dashboard</title>
     </head>
-    <style>
-      table, th, td {
-        border:1px solid black;
-      }
-    </style>
     <body>
         <h1>Welcome!</h1>
-        <p>The following is a list of agents and clients connected to the server</p>
+        <p>Select Victim to make them sad</p>
         <table>
           <tr>
             <th> Victim Machine Name</th>
@@ -25,11 +24,15 @@
                 <td> 
                   <form method="post" action="{{ url_for('operation')}}">
                     <input type="hidden" name="agent_id" value="{{ agent.agent_id }}">
-                    <input type="submit" value="operation" />
+                    <input type="submit" class="button" value="HACK" />
                   </form>
                 </td>
             </tr>
           {% endfor %}
         </table>
+
+        <form method="post" action="{{ url_for('logout')}}">
+          <input type="submit" value="Logout" />
+        </form> 
 
     </body>

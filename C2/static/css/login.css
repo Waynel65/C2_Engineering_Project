@@ -1,0 +1,81 @@
+html, body {
+    height: 100%;
+    font-family: 'Roboto Mono', monospace;
+    background-color: #232424;
+    color: #5eec5e;
+    
+}
+
+html {
+    display: table;
+    margin: auto;
+    background-color: #232424;
+    color: #5eec5e;
+}
+
+
+body {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+h1 {
+    text-align: center;
+}
+
+.button {
+
+    color: #FFF;
+    border: 2px solid #5eec5e;
+    border-radius: 0px;
+    padding: 18px 36px;
+    display: inline-block;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0 #5eec5e;
+    -webkit-transition: ease-out 0.4s;
+    -moz-transition: ease-out 0.4s;
+    transition: ease-out 0.4s;
+    background-color: #232424;
+  }
+
+  .button:hover {
+    box-shadow: inset 400px 50px 0 0 #5eec5e;
+  }
+
+  .user-box {
+    position: relative;
+  }
+
+  .user-box input {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 30px;
+    border: none;
+    border-bottom: 1px solid #fff;
+    outline: none;
+    background: transparent;
+  }
+
+  .user-box label {
+    position: absolute;
+    top:0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #fff;
+    pointer-events: none;
+    transition: .5s;
+  }
+
+  .user-box input:focus ~ label,
+  .user-box input:valid ~ label {
+    top: -20px;
+    left: 0;
+    color: #5eec5e;
+    font-size: 12px;
+  }

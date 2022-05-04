@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="../static/css/login.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+        <meta charset="UTF-8">
+        <title>Unauthorized</title>
+        <link rel="stylesheet" href="../static/css/login.css">
+    </head>
+    <style>
+        h1 {
+            color: red;
+        }
+    </style>
+    <body>
+        <h1>UNAUTHORIZED</h1>
+
+        <form method="post" action="{{ url_for('login_page')}}">
+            <input type="submit" value="return to login page" />
+        </form>
+    </body>
+</html>

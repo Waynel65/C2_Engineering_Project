@@ -4,7 +4,7 @@
 
 from flask import Flask , request, jsonify, redirect, render_template, url_for, session
 import flask_login
-from flask_login import LoginManager, login_required, login_user, UserMixin
+from flask_login import LoginManager, login_required, login_user, logout_user, UserMixin
 from flask_sqlalchemy import SQLAlchemy ## inherently handles syncronization for us ##
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, false
 import hashlib
@@ -18,7 +18,7 @@ from creds import db_cred
 # APP_KEY = os.environ["APP_KEY"]
 agent_password = "16e4399bae82648f804d3801809c5fe454dc5e397750165e807a66d476b1d027"
 localhost = "http://127.0.0.1:5000"
-template_dir = "../templates"
+template_dir = "templates"
 app_secret_key = os.urandom(24)
 aes_key = b"\x41\x13\xcd\xa3\xa0\xe0\xab\x5e\x19\xf1\xc0\x1c\x6d\x4e\x77\xc5\xe5\x20\xd2\x44\x0e\x52\xae\x87\xaa\x0a\x96\x67\x28\x82\xea\x08"
 iv_len = 12

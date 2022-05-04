@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="../static/css/login.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+        <!-- google fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&family=Yuji+Boku&display=swap" rel="stylesheet">
+        <meta charset="UTF-8">
+        <title>Home Page</title>
+    </head>
+    <body>
+        <h1>Magic Conch Shell_</h1>
+        <br> <br>
+        <form method="post" action="{{ url_for('login_client')}}">
+            <label for="login_client"></label>
+            <div class="user-box">
+                <input type="client_id" name="client_id"/>
+                <label>Username</label>
+            </div>
+            <div class="user-box">
+                <input type="password" name="password"/>
+                <label>Password</label>
+              </div>
+            <br><input class="button slide" type="submit" value="Login"></br>
+        </form>
+
+    </body>
+</html>
+
+<!-- always remember that url_for accepts a FUNCTION NAME as a parameter -->

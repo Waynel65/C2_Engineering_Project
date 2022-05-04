@@ -12,7 +12,7 @@ def load_user(user_id):
     """
     return Client.query.get(user_id)
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
 def login_page():
     return render_template("login.html")
 
@@ -71,7 +71,13 @@ def dashboard():
     
     # return info
 
+@app.route('/client/return', methods=['POST'])
+@login_required
+def return2dashboard():
+    return redirect(url_for("dashboard"))
+
 @app.route('/client/operation', methods=['GET', 'POST'])
+@login_required
 def operation():
     """
         listens to the /operation route
@@ -96,6 +102,7 @@ def operation():
         return render_template("operation.html", agent_id=agent_id, tasks=task_list)
 
 @app.route('/client/display_results', methods=['GET', 'POST'])
+@login_required
 def display_results():
     """
         Listens to the /display_results route
@@ -114,7 +121,8 @@ def display_results():
     
     return ""
 
-@app.route('/client/logout', methods=['GET'])
-# @login_required
+@app.route('/client/logout', methods=['POST'])
+@login_required
 def logout():
-    pass
+    logout_user()
+    return redirect(url_for("login_page"))
