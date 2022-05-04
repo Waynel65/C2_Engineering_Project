@@ -64,7 +64,7 @@ td{
 
   #right_button {
       float: right;
-      width: 15%;
+      width: fit-content;
       margin-top: 2vw;
       margin-left: 3%;
   }
