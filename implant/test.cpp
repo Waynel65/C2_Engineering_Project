@@ -114,13 +114,37 @@ void test_persistence()
     // pwd = (LPTSTR) malloc(pwdSize);
     // GetCurrentDirectory(pwdSize, pwd);
     // std::cout << buffer << std::endl;
-    std::wstring progPath = L"D:\\test\\testimp.exe";
-    HKEY hkey = NULL;
-    LONG createStatus = RegCreateKeyExA(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey); //Creates a key     
-    printf("create status: %d", createStatus);
+    
+    char exepath[MAX_PATH];
+    GetModuleFileNameA(0, exepath, MAX_PATH);
 
-    LONG status = RegSetValueEx(hkey, L"MyApp", 0, REG_SZ, (BYTE *)progPath.c_str(), (progPath.size()+1) * sizeof(wchar_t));
-    printf("status: %d", status);
+    printf("executable path: %s\n", exepath);
+
+    HKEY hKey;
+    LSTATUS status = RegOpenKeyA(
+        HKEY_CURRENT_USER,
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        &hKey
+    );
+
+    if (status != ERROR_SUCCESS) {
+        printf("Error %d: unable to open key\n", status);
+    }
+
+    status = RegSetValueExA(
+        hKey,
+        "test.exe",
+        0,
+        REG_SZ,
+        (BYTE*)exepath,
+        strlen(exepath)
+    );
+
+    if (status != ERROR_SUCCESS) {
+        printf("Error %d: unable to set key\n", status);
+    }
+
+    RegCloseKey(hKey);
 }
 
 int main(int argc, char* argv[])
