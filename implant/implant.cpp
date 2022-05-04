@@ -267,17 +267,12 @@ int main(int argc, char* argv[]){
         return 0; // Exit program
     }
 
-<<<<<<< HEAD
     persist();
 
-    agentId = generateRandomId(10);
     BOOL registered = FALSE;
     do {
         registered = registerAgent();
     } while (!registered);
-=======
-    registerAgent();
->>>>>>> awareness
 
     int i = 3;
     while(i > 0) {
