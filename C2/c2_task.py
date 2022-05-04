@@ -7,6 +7,9 @@ from c2_database import *
 
 @app.route("/tasks/create", methods=["POST"])
 def create_task():
+    """
+    Parse Task sent by client, and stroe it to database
+    """
     data = request.json
     if data == None:
         return jsonify({"status": "error: no data"})
