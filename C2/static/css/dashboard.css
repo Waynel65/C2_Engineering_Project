@@ -3,6 +3,7 @@ html, body {
     font-family: 'Roboto Mono', monospace;
     background-color: #232424;
     color: #5eec5e;
+    margin: 2%;
     
 }
 
@@ -60,4 +61,11 @@ td{
 
   .button:hover {
     box-shadow: inset 400px 50px 0 0 #5eec5e;
+  }
+
+  #right_button {
+    float: right;
+    width: 15%;
+    margin-top: 2vw;
+    margin-left: 3%;
   }
