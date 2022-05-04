@@ -15,8 +15,8 @@ import json
 from creds import db_cred
 
 ### configs ###
-# hashlib.sha256("magic_conch".encode('utf-8')).hexdigest() # generate agent password
-agent_password = "16e4399bae82648f804d3801809c5fe454dc5e397750165e807a66d476b1d027" 
+# APP_KEY = os.environ["APP_KEY"]
+agent_password = "16e4399bae82648f804d3801809c5fe454dc5e397750165e807a66d476b1d027"
 localhost = "http://127.0.0.1:5000"
 template_dir = "../client/templates"
 app_secret_key = os.urandom(24)

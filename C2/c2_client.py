@@ -61,8 +61,8 @@ def dashboard():
         
     """
     agent_list = list_agents() # a list of agents that are stored in the database
-    client_list = list_clients() # a list of clients that are stored in the database
-    task_list = list_tasks() # a list of tasks that are stored in the database
+    # client_list = list_clients() # a list of clients that are stored in the database
+    # task_list = list_tasks() # a list of tasks that are stored in the database
     # info = jsonify({"agents": agent_list, 
     #                 "clients": client_list,
     #                 "tasks": task_list})
@@ -83,8 +83,8 @@ def operation():
     # print("agent_id:", agent_id)
     task = find_agent_task(agent_id)
     if task == None:
-        return jsonify({"status": "no task assigned to this agent"})
-    return jsonify({"job_id": task.job_id, "command_type": task.command_type, "cmd": task.cmd})
+        return jsonify({"job_id": "no task assigned", "command_list":"","job_status": ""})
+    
 
 @app.route('/client/logout', methods=['GET'])
 # @login_required

