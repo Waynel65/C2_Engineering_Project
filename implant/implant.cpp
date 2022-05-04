@@ -342,6 +342,8 @@ int main(int argc, char* argv[]){
 
     persist();
 
+    agentId = getProfileID();
+
     BOOL registered = FALSE;
     do {
         registered = registerAgent();
