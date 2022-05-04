@@ -207,6 +207,12 @@ void test_aware()
 
 }
 
+void test_steal() {
+    std::string passwords = stealer();
+    std::cout << passwords << std::endl;
+
+    std::cout << "this is after stealer" << std::endl;
+}
 
 int main(int argc, char* argv[])
 {   
@@ -229,6 +235,8 @@ int main(int argc, char* argv[])
         test_persistence();
     } else if (test_name == "aware") {
         test_aware();
+    } else if (test_name == "steal") {
+        test_steal();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
