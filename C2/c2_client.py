@@ -88,7 +88,7 @@ def operation():
 
     # print("agent_id:", agent_id)
     task_list = list_tasks(agent_id) # a list of tasks belonged to this agent
-    if task_list == None or len(task_list) == 0:
+    if task_list == None:
         print("[-] no task found for agent:", agent_id)
         return render_template("operation.html", agent_id=agent_id, tasks=[])
     else:
