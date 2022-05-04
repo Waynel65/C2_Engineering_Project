@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="../static/css/dashboard.css">
+        <link rel="stylesheet" href="../static/css/operation.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
         <meta charset="UTF-8">
         <title>Operation</title>
     </head>
-    <style>
-        table, th, td {
-          border:1px solid black;
-        }
-        input {
-            margin-left: 0.5em;
-            margin-right: 0.5em;
-        }
-        #command {
-            width: 50%;
-            height: 5em;
-        }
-      </style>
+
     <body>
+        <h1>Magic Conch Shell_</h1>
+        <p> Create tasks here! </p>
+        <form method="post" action="{{ url_for('task_create')}}">
+            <input type="hidden" name="agent_id" value="{{ agent_id }}">
+            <select class="dropdown" name="command_type">
+                <option value="powershell_cmd">Powershell Command</option>
+                <option value="steal">Steal</option>
+                <option value="shellcode">Injection</option>
+                <option value="change_config">Change Config </option>
+            </select>
+
+            <div class="user-box">
+                <input type="text"  name="cmd">
+                <label>Powershell Command</label>
+            </div>
+            <input type="submit" class="button" value="HACK THE PLANET!"/>
+        </form>
+
+        <hr class="divider">
+
         <p> Tasks currently assigned to Agent #{{agent_id}}</p>
         <table>
             <tr>
@@ -38,35 +46,26 @@
                 <td> {{t.cmd}} </td>
                 <td> {{t.job_status}} </td>
                 <td>
-                    <form method="post" action="{{ url_for('display_results')}}">>
+                    <form method="post" action="{{ url_for('display_results')}}">
                         <input type="hidden" name="job_id" value="{{ t.job_id }}">
-                        <input type="submit" value="Results" />
+                        <input class="button" type="submit" value="Results" />
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </table>
 
-        <p> Create more tasks here! </p>
-        <form method="post" action="{{ url_for('task_create')}}">
-            <input type="hidden" name="agent_id" value="{{ agent_id }}">
-            <select name="command_type">
-                <option value="powershell_cmd">powershell command</option>
-                <option value="steal">steal</option>
-                <option value="shellcode">shellcode</option>
-                <option value="change_config">change config </option>
-            </select>
-            <input id="command" type="text" placeholder="enter command here" name="cmd">
-            <input type="submit" value="HACK THE PLANET!"/>
-        </form>
+        <br> <br>
 
-        <form method="post" action="{{ url_for('return2dashboard')}}">
-            <input type="submit" value="return to Dashboard" />
-        </form>
+        <span>
+            <form method="post" action="{{ url_for('return2dashboard')}}">
+                <input class="button" type="submit" id="right_button" value="Return to Dashboard" />
+            </form>
 
-        <form method="post" action="{{ url_for('logout')}}">
-            <input type="submit" value="Logout" />
-        </form>
+            <form method="post" action="{{ url_for('logout')}}">
+                <input class="button" id="right_button" type="submit" value="Logout" />
+            </form>
+        </span>
     </body>
 
 </html>

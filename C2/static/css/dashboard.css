@@ -3,6 +3,7 @@ html, body {
     font-family: 'Roboto Mono', monospace;
     background-color: #232424;
     color: #5eec5e;
+    margin: 2%;
     
 }
 
@@ -17,7 +18,7 @@ h1{
 
 table{
     width:100%;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 th{
@@ -45,7 +46,7 @@ td{
     color: #FFF;
     border: 2px solid #5eec5e;
     border-radius: 0px;
-    padding: 9px 36px;
+    padding: 1% 2%;
     display: inline-block;
     font-family: 'Roboto Mono', monospace;
     font-size: 14px;
@@ -60,4 +61,11 @@ td{
 
   .button:hover {
     box-shadow: inset 400px 50px 0 0 #5eec5e;
+  }
+
+  #right_button {
+    float: right;
+    width: fit-content;
+    margin-top: 2vw;
+    margin-left: 3%;
   }
