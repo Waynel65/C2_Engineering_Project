@@ -13,19 +13,21 @@
         <title>Home Page</title>
     </head>
     <body>
-        <h1>Welcome!</h1>
+        <h1>Magic Conch Shell_</h1>
+        <br> <br>
         <form method="post" action="{{ url_for('login_client')}}">
             <label for="login_client"></label>
-            <br>
-                Username: 
-                <input type="client_id" name="client_id" placeholder="Enter Client ID Here" />
-            </br>
-            <br>
-                Password:
-                <input type="password" name="password" placeholder="Enter Password Here" />
-            </br>
-            <br><input type="submit" value="Login"></br>
+            <div class="user-box">
+                <input type="client_id" name="client_id"/>
+                <label>Username</label>
+            </div>
+            <div class="user-box">
+                <input type="password" name="password"/>
+                <label>Password</label>
+              </div>
+            <br><input class="button slide" type="submit" value="Login"></br>
         </form>
+
     </body>
 </html>
 

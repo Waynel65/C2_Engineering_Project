@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="style/login.css">
+        <link rel="stylesheet" href="../static/css/login.css">
         <meta charset="UTF-8">
         <title>Operation</title>
     </head>
@@ -55,6 +55,14 @@
             </select>
             <input id="command" type="text" placeholder="enter command here" name="cmd">
             <input type="submit" value="HACK THE PLANET!"/>
+        </form>
+
+        <form method="post" action="{{ url_for('return2dashboard')}}">
+            <input type="submit" value="return to Dashboard" />
+        </form>
+
+        <form method="post" action="{{ url_for('logout')}}">
+            <input type="submit" value="Logout" />
         </form>
     </body>
 

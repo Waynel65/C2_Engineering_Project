@@ -1,7 +1,7 @@
 <!doctype html>
   <html lang="en">
     <head>
-      <link rel="stylesheet" href="../static/css/style.css">
+      <link rel="stylesheet" href="../static/css/login.css">
       <meta charset="UTF-8">
       <title>Dashboard</title>
     </head>
@@ -32,5 +32,9 @@
             </tr>
           {% endfor %}
         </table>
+
+        <form method="post" action="{{ url_for('logout')}}">
+          <input type="submit" value="Logout" />
+        </form> 
 
     </body>
