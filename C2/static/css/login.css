@@ -9,7 +9,10 @@ html, body {
 html {
     display: table;
     margin: auto;
+    background-color: #232424;
+    color: #5eec5e;
 }
+
 
 body {
     display: table-cell;

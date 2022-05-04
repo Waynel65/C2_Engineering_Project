@@ -31,4 +31,8 @@
           {% endfor %}
         </table>
 
+        <form method="post" action="{{ url_for('logout')}}">
+          <input type="submit" value="Logout" />
+        </form> 
+
     </body>
