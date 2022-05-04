@@ -15,12 +15,16 @@
           <tr>
             <th> Victim Machine Name</th>
             <th> Agent ID </th>
+            <th> First Seen </th>
+            <th> Last Seen </th>
             <th> Operations </th>
           </tr>
           {% for agent in info %}
             <tr>
                 <td>{{ agent.victim_machine_user }}</td>
                 <td>{{ agent.agent_id }}</td>
+                <td>{{ agent.first_seen}}</td>
+                <td>{{ agent.last_seen}}</td>
                 <td> 
                   <form method="post" action="{{ url_for('operation')}}">
                     <input type="hidden" name="agent_id" value="{{ agent.agent_id }}">
