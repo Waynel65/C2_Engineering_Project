@@ -38,7 +38,7 @@ def init_data():
     cpus = os.cpu_count()
     agent_id = os.urandom(16).hex() # a random value that is unqiue to this implant
     password = "magic_conch" # hex value of sha256 "ch0nky"; for testing purposes
-    return {"whoami": whoami, "agent_id": agent_id, "password": password, "cpus": cpus}
+    return {"whoami": whoami, "agent_id": agent_id, "password": password, "cpus": cpus, "username":"hey", "osVersion":"Win10", "adaptors":"test1"}
 
 data = init_data()
 
