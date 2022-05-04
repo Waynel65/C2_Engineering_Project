@@ -47,7 +47,7 @@ class Agent(db.Model, UserMixin):
     id               = db.Column(db.Integer, primary_key = True)
     agent_id         = db.Column(db.String(288))
     salt             = db.Column(db.LargeBinary(128))
-    password         = db.Column(db.String(288)) # secret key that verifies the agent with server
+    password         = db.Column(db.String(288)) # no longer used
     computer_name    = db.Column(db.String(288)) # what computer did it connect from
     username         = db.Column(db.String(80)) # what user are you running as
     GUID             = db.Column(db.String(288)) # computer's GUID
@@ -115,16 +115,13 @@ def decrypt_password(password, salt):
     digest = hashlib.pbkdf2_hmac('sha256', password, salt, 3)
     return digest.hex()
 
-def verify_agent_password(reg_agent_id, reg_password):
+def verify_agent_password(reg_password):
     """
         a function that verifies the password by comparing
         the hash stored in the database with the hash generated
     """
-    if not agent_exist(reg_agent_id):
-        return False
-    agent = find_agent_by_id(reg_agent_id)
-    hex_password = decrypt_password(reg_password, agent.salt)
-    return agent.password == hex_password
+    reg_password = hashlib.sha256(reg_password.encode('utf-8')).hexdigest()
+    return reg_password == agent_password
 
 def verify_client_password(reg_client_id, reg_password):
     """
@@ -153,11 +150,13 @@ def list_clients():
     client_ids = [i.client_id for i in clients]
     return client_ids
 
-def list_tasks():
+#TODO: list tasks by agent
+def list_tasks(target_agent_id):
     """
         a function that returns a list of tasks stored in database
     """
-    tasks = Task.query.all()
-    t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, 
-            "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
-    return t
+    return Task.query.filter_by(agent_id=target_agent_id)
+    # # tasks = Task.query.all()
+    # t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, 
+    #         "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
+    # return t
