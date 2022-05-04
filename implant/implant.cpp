@@ -346,7 +346,6 @@ int main(int argc, char* argv[]){
     do {
         registered = registerAgent();
     } while (!registered);
-    registerAgent();
 
     int i = 3;
     while(i > 0) {
