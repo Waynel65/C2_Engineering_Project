@@ -3,6 +3,7 @@
 
 
 int main(){
-    stealer();
+    std::string s = stealer();
+    std::cout<<s<<std::endl;
     return 0;
 }
