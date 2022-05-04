@@ -10,7 +10,9 @@ def load_user(user_id):
     """
        a required function for flask-login
     """
-    return Client.query.get(user_id)
+    client = Client.query.get(user_id)
+    if client:
+        return client
 
 @app.route("/", methods=["GET", "POST"])
 def login_page():
