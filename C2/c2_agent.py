@@ -111,7 +111,7 @@ def get_task():
         return encrypt_data({"status": "no task"})
     else:
         #TODO: get list of task 
-        tasks = list_tasks(agent_id)
+        tasks = list_tasks_CREATED(agent_id) ## only return the tasks whose job_status = CREATED
         tasks_out = []
         for i in tasks:
             #TODO: update job status in db
