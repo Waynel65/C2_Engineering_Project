@@ -33,7 +33,12 @@
                 <td> {{t.command_type}} </td>
                 <td> {{t.cmd}} </td>
                 <td> {{t.job_status}} </td>
-                <td> result </td>
+                <td>
+                    <form method="post" action="{{ url_for('display_results')}}">>
+                        <input type="hidden" name="job_id" value="{{ t.job_id }}">
+                        <input type="submit" value="Results" />
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </table>
