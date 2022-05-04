@@ -3,11 +3,16 @@
 
 #include <windows.h>
 #include <string>
+#include <vector>
 
-std::string httpGet(LPCWSTR fqdn, int port, LPCWSTR uri);
+std::vector<BYTE> encryptPayload(std::string message); 
 
-std::string httpPost(LPCWSTR fqdn, int port, LPCWSTR uri, std::string data);
+std::string decryptPayload(std::vector<BYTE> payload);
 
-std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::string data);
+std::string httpGet(LPCWSTR fqdn, int port, LPCWSTR uri, BOOL useTLS);
+
+std::string httpPost(LPCWSTR fqdn, int port, LPCWSTR uri, std::string data, BOOL useTLS);
+
+std::string httpRequest(LPCWSTR verb, LPCWSTR fqdn, int port, LPCWSTR uri, std::string data, BOOL useTLS);
 
 #endif
