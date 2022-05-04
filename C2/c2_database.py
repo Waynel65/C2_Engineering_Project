@@ -164,3 +164,9 @@ def list_tasks(target_agent_id):
     #         "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
     # return t
 
+def list_tasks_CREATED(agent_id):
+    """
+        a function that returns a list of tasks stored in database
+    """
+    return Task.query.filter_by(agent_id=agent_id, job_status=CREATED)
+
