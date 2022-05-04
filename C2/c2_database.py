@@ -46,19 +46,22 @@ class Client(db.Model, UserMixin):
 class Agent(db.Model, UserMixin): 
     id               = db.Column(db.Integer, primary_key = True)
     agent_id         = db.Column(db.String(288))
-    salt             = db.Column(db.LargeBinary(128))
-    password         = db.Column(db.String(288)) # no longer used
+    # salt             = db.Column(db.LargeBinary(128))
+    # password         = db.Column(db.String(288)) # no longer used
     computer_name    = db.Column(db.String(288)) # what computer did it connect from
     username         = db.Column(db.String(80)) # what user are you running as
-    GUID             = db.Column(db.String(288)) # computer's GUID
-    Integrity        = db.Column(db.String(288)) # what privileges do you have
-    ip_address       = db.Column(db.String(32))  # what address did the implant connect from
-    session_key      = db.Column(db.String(288)) # after you negotiated a session key, store it per agent
-    sleep            = db.Column(db.Float)       # how often does the agent check in 
-    jitter           = db.Column(db.Float)       # how random of a check in is it
-    first_seen       = db.Column(db.DateTime)    # when did the agent first check in
-    last_seen        = db.Column(db.DateTime)    # when was the last time you saw the agent
-    expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again
+    cpus             = db.Column(db.String(288))
+    osVersion        = db.Column(db.String(288))
+    adaptors         = db.Column(db.String(288))
+    # GUID             = db.Column(db.String(288)) # computer's GUID
+    # Integrity        = db.Column(db.String(288)) # what privileges do you have
+    # ip_address       = db.Column(db.String(32))  # what address did the implant connect from
+    # session_key      = db.Column(db.String(288)) # after you negotiated a session key, store it per agent
+    # sleep            = db.Column(db.Float)       # how often does the agent check in 
+    # jitter           = db.Column(db.Float)       # how random of a check in is it
+    # first_seen       = db.Column(db.DateTime)    # when did the agent first check in
+    # last_seen        = db.Column(db.DateTime)    # when was the last time you saw the agent
+    # expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again
 
 # search agent by agent_id
 # link for ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/queries/
@@ -90,7 +93,7 @@ def find_agent_task(agent_id):
     """
         a function that finds a task for an agent
     """
-    return Task.query.filter_by(agent_id=agent_id, job_status= CREATED).first()
+    return Task.query.filter_by(agent_id=agent_id, job_status=CREATED).first()
 
 def find_task_by_jobID(job_id):
     """
@@ -160,3 +163,4 @@ def list_tasks(target_agent_id):
     # t = [{"agent_id":i.agent_id, "job_id": i.job_id, "job_status": i.job_status, 
     #         "command_type": i.command_type, "cmd": i.cmd, "job_results": i.job_results } for i in tasks]
     # return t
+

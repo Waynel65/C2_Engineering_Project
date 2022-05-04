@@ -3,12 +3,12 @@
 #include <iostream>
 
 
-AESGCM:: ~AESGCM(){
+AESGCM_STEALER:: ~AESGCM_STEALER(){
     Cleanup();
 }
 
 // Freebie: initialize AES class
-AESGCM::AESGCM( BYTE key[AES_256_KEY_SIZE]){
+AESGCM_STEALER::AESGCM_STEALER( BYTE key[AES_256_KEY_SIZE]){
     hAlg = 0;
     hKey = NULL;
 
@@ -69,7 +69,11 @@ AESGCM::AESGCM( BYTE key[AES_256_KEY_SIZE]){
 }
 
 
+<<<<<<< HEAD
 int AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen){
+=======
+void AESGCM_STEALER::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen){
+>>>>>>> c24bc565337790c79505fd6309419d19be133cc2
 
     BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO authInfo;
 
@@ -137,7 +141,7 @@ int AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BY
 
 }
 
-void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
+void AESGCM_STEALER::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
     BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO authInfo;
 
     BCRYPT_INIT_AUTH_MODE_INFO(authInfo);
@@ -205,7 +209,7 @@ void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
 
 }
 
-void AESGCM::Cleanup(){
+void AESGCM_STEALER::Cleanup(){
     if(hAlg){
         ::BCryptCloseAlgorithmProvider(hAlg,0);
         hAlg = NULL;

