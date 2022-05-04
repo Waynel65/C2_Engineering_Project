@@ -110,7 +110,7 @@ def display_results():
     if task.job_status != DONE:
         return jsonify({"status": "job is not done yet"})
     else:
-        return jsonify({"results": task.results})
+        return jsonify({"results": task.job_results})
     
     return ""
 
