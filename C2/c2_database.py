@@ -90,7 +90,7 @@ def find_agent_task(agent_id):
     """
         a function that finds a task for an agent
     """
-    return Task.query.filter_by(agent_id=agent_id, job_status= CREATED).first()
+    return Task.query.filter_by(agent_id=agent_id, job_status=CREATED).first()
 
 def find_task_by_jobID(job_id):
     """

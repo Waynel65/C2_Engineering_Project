@@ -71,19 +71,29 @@ def dashboard():
     
     # return info
 
-@app.route('/client/operation', methods=['POST'])
+@app.route('/client/operation', methods=['GET', 'POST'])
 def operation():
     """
         listens to the /operation route
         This page should show all the agents & operators connected to the server
     """
     agent_id = request.form.get('agent_id')
+    print("agent_id: ", agent_id)
     if agent_id == None:
-        return jsonify({"status": "failed to get data from client"})
+        ## second attempt to get agent_id from redirecting (from task_create in c2_task.py) => bad design, sorry
+        agent_id = request.args.get('agent_id')
+        print("agent_id: ", agent_id)
+        if agent_id == None:
+            return jsonify({"status": "failed to get data from client"})
+
     # print("agent_id:", agent_id)
-    task = find_agent_task(agent_id)
-    if task == None:
-        return jsonify({"job_id": "no task assigned", "command_list":"","job_status": ""})
+    task_list = list_tasks(agent_id) # a list of tasks belonged to this agent
+    if task_list == None or len(task_list) == 0:
+        print("[-] no task found for agent:", agent_id)
+        return render_template("operation.html", agent_id=agent_id, tasks=[])
+    else:
+        # print("task_list:", task_list)
+        return render_template("operation.html", agent_id=agent_id, tasks=task_list)
     
 
 @app.route('/client/logout', methods=['GET'])

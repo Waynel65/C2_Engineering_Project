@@ -105,6 +105,8 @@ def get_task():
     if task == None:
         return encrypt_data({"status": "no task"})
     else:
+        task.job_status = TASKED
+        db.session.commit()
         return encrypt_data({"job_id": task.job_id,"command_type": task.command_type, "cmd": task.cmd, "status": "ok"})
     
 @app.route('/agent/send_results', methods=['POST'])
