@@ -58,7 +58,7 @@ class Agent(db.Model, UserMixin):
     # ip_address       = db.Column(db.String(32))  # what address did the implant connect from
     # session_key      = db.Column(db.String(288)) # after you negotiated a session key, store it per agent
     # sleep            = db.Column(db.Float)       # how often does the agent check in 
-    jitter           = db.Column(db.Float)       # how random of a check in is it
+    # jitter           = db.Column(db.Float)       # how random of a check in is it
     first_seen       = db.Column(db.DateTime)    # when did the agent first check in
     last_seen        = db.Column(db.DateTime)    # when was the last time you saw the agent
     # expected_checkin = db.Column(db.DateTime)    # when should you expect to see the agent again

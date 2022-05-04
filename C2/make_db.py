@@ -20,6 +20,8 @@ user5 = Client(client_id="xinyu", password = "c92bd861b6d2c5d97bb8799c1b8a84b8ff
 task1 = Task(job_id="uij2345fghj9", agent_id="1740948824", command_type="Shell Command", cmd="steal passwords", job_status=CREATED)
 task2 = Task(job_id="21kj985fghj9", agent_id="1740948824", command_type="Shell Command", cmd="meow meow meow", job_status=CREATED)
 
+agent1 = Agent(agent_id="ujdg84t", computer_name="macbook air", username="hey", cpus="4", osVersion="rtyui", adaptors="678", first_seen=datetime.now(), last_seen=datetime.now())
+
 db.session.add(task1)
 db.session.add(task2)
 db.session.add(user1)
@@ -27,4 +29,5 @@ db.session.add(user2)
 db.session.add(user3)
 db.session.add(user4)
 db.session.add(user5)
+db.session.add(agent1)
 db.session.commit()

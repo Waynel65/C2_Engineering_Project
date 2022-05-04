@@ -46,7 +46,7 @@ def register_agent(): # --> this is a handler
             login_user(agent)
             print(f"[+] agent {agent.agent_id} has been authenticated")
         else:
-            agent = Agent(agent_id=reg_agent_id, username=reg_username, computer_name=reg_whoami, cpus=reg_cpus, osVersion=reg_osVersion, adaptors=reg_adaptors, first_seen=datetime.now())
+            agent = Agent(agent_id=reg_agent_id, username=reg_username, computer_name=reg_whoami, cpus=reg_cpus, osVersion=reg_osVersion, adaptors=reg_adaptors, first_seen=datetime.now(), last_seen = datetime.now())
             db.session.add(agent)
             db.session.commit() ## saves the data to the database
             agent.authenticated = True
