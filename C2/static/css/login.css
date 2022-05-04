@@ -1,5 +1,9 @@
 html, body {
     height: 100%;
+    font-family: 'Roboto Mono', monospace;
+    background-color: #232424;
+    color: #5eec5e;
+    
 }
 
 html {
@@ -10,4 +14,8 @@ html {
 body {
     display: table-cell;
     vertical-align: middle;
+}
+
+h1 {
+    text-align: center;
 }

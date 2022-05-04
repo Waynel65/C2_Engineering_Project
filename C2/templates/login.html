@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="style/login.css">
+        <link rel="stylesheet" href="../static/css/login.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
@@ -12,9 +12,15 @@
         <h1>Welcome!</h1>
         <form method="post" action="{{ url_for('login_client')}}">
             <label for="login_client"></label>
-            <input type="client_id" name="client_id" placeholder="Enter Client ID Here" />
-            <input type="password" name="password" placeholder="Enter Password Here" />
-            <input type="submit" value="Login">
+            <br>
+                Username: 
+                <input type="client_id" name="client_id" placeholder="Enter Client ID Here" />
+            </br>
+            <br>
+                Password:
+                <input type="password" name="password" placeholder="Enter Password Here" />
+            </br>
+            <br><input type="submit" value="Login"></br>
         </form>
     </body>
 </html>
