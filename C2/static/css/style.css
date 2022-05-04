@@ -1,13 +1,15 @@
 html, body {
     height: 100%;
-}
-
-html {
+    font-family: 'Roboto Mono', monospace;
     display: table;
     margin: auto;
+    background-color: #232424;
+    color: #5eec5e;
 }
+
 
 body {
     display: table-cell;
     vertical-align: middle;
 }
+
