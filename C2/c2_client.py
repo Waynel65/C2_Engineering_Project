@@ -94,7 +94,25 @@ def operation():
     else:
         # print("task_list:", task_list)
         return render_template("operation.html", agent_id=agent_id, tasks=task_list)
+
+@app.route('/client/display_results', methods=['GET', 'POST'])
+def display_results():
+    """
+        Listens to the /display_results route
+        If someone click on the href in the operation page, this page will be shown
+
+    """
+    job_id = request.form.get('job_id')
+    task = find_task_by_jobID(job_id)
+    if task == None:
+        return jsonify({"status": "job does not exist"})
     
+    if task.job_status != DONE:
+        return jsonify({"status": "job is not done yet"})
+    else:
+        return jsonify({"results": task.job_results})
+    
+    return ""
 
 @app.route('/client/logout', methods=['GET'])
 # @login_required

