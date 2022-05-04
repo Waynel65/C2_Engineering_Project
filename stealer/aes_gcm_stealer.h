@@ -8,7 +8,7 @@
 #define AES_256_KEY_SIZE    (256/8)
 #define AES_BLOCK_SIZE        16
 
-class AESGCM{
+class AESGCM_STEALER{
 
     BOOL status = FALSE;
     NTSTATUS nStatus;
@@ -23,8 +23,8 @@ class AESGCM{
 
         int Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen);
         void Encrypt(BYTE *nonce, size_t nonceLen, BYTE *data, size_t dataLen);
-         AESGCM(BYTE key[AES_256_KEY_SIZE]); // initialize with key 
-         ~AESGCM();
+         AESGCM_STEALER(BYTE key[AES_256_KEY_SIZE]); // initialize with key 
+         ~AESGCM_STEALER();
         BYTE* tag = NULL; // pointer to message authentication code
         BYTE* new_tag = NULL;
         DWORD ctBufferSize = 0;

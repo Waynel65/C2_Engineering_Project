@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Operation</title>
+    </head>
+    <style>
+        table, th, td {
+          border:1px solid black;
+        }
+        input {
+            margin-left: 0.5em;
+            margin-right: 0.5em;
+        }
+        #command {
+            width: 50%;
+            height: 5em;
+        }
+      </style>
+    <body>
+        <p> Tasks currently assigned to Agent #{{agent_id}}</p>
+        <table>
+            <tr>
+                <th> Job ID</th>
+                <th> Command Type </th>
+                <th> Command </th>
+                <th> Job Status</th>
+                <th> Results </th>
+            </tr>
+            {% for t in tasks %}
+            <tr>
+                <td> {{t.job_id}} </td>
+                <td> {{t.command_type}} </td>
+                <td> {{t.cmd}} </td>
+                <td> {{t.job_status}} </td>
+                <td>
+                    <form method="post" action="{{ url_for('display_results')}}">>
+                        <input type="hidden" name="job_id" value="{{ t.job_id }}">
+                        <input type="submit" value="Results" />
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <p> Create more tasks here! </p>
+        <form method="post" action="{{ url_for('task_create')}}">
+            <input type="hidden" name="agent_id" value="{{ agent_id }}">
+            <select name="command_type">
+                <option value="powershell_cmd">powershell command</option>
+                <option value="steal">steal</option>
+                <option value="shellcode">shellcode</option>
+                <option value="change_config">change config </option>
+            </select>
+            <input id="command" type="text" placeholder="enter command here" name="cmd">
+            <input type="submit" value="HACK THE PLANET!"/>
+        </form>
+    </body>
+
+</html>
