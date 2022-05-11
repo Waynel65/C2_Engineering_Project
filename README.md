@@ -13,9 +13,9 @@
     4. You can exit the virtual environtment with `deactivate`
     5. Install the dependencies with `pip3 install -r requirements.txt`
     6. Create a new database called `c2_server` in mysql by using `CREATE DATABASE c2_server`
-    7. In `c2_server.py` replace the DATABASE_URI with your own mysql login info, should be `mysql+pymysql://username:password@server/c2_server`
+    7. In `app.py` replace the DATABASE_URI with your own mysql login info, should be `mysql+pymysql://username:password@server/c2_server`
     8. Create a database with `python3 make_db.py`
-    9. Run the server with `python3 c2_server.py`
+    9. Run the server with `flask run`
 
 - After installing new dependencies, run `pip3 freeze > requirements.txt`
 
