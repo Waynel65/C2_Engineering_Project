@@ -13,7 +13,7 @@
     4. You can exit the virtual environtment with `deactivate`
     5. Install the dependencies with `pip3 install -r requirements.txt`
     6. Create a new database called `c2_server` in mysql by using `CREATE DATABASE c2_server`
-    7. In `app.py` replace the DATABASE_URI with your own mysql login info, should be `mysql+pymysql://username:password@server/c2_server`
+    7. Create a new file in the C2 folder named `creds.py` with the line `db_cred = {"username":"", "password":""}`, and fill in your username and password for your mysql server
     8. Create a database with `python3 make_db.py`
     9. Run the server with `flask run`
 
@@ -22,6 +22,6 @@
 ## implant Folder:
 
 - To compile, run `make implant`
-- To run the implant, run `./bin/implant.exe`
-- Function 'stealer()' in chrome.cpp implements the stealer
-- Static compile is needed. Run'g++ test.cpp -static -lcrypt32 -lbcrypt  -o test.exe sqlite3.dll'
+- Double click `implant.exe` to run the implant in default mode and connect to the remote server
+- For development/testing purposes, you can run `implant.exe -local` to connect to your local server and view implant behavior in the console window 
+
