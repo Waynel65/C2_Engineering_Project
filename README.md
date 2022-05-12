@@ -22,6 +22,12 @@
 ## implant Folder:
 
 - To compile, run `make implant`
+<<<<<<< HEAD
 - Double click `implant.exe` to run the implant in default mode and connect to the remote server
 - For development/testing purposes, you can run `implant.exe -local` to connect to your local server and view implant behavior in the console window 
 
+=======
+- To run the implant, run `./bin/implant.exe`
+- Function 'stealer()' in chrome.cpp implements the stealer
+- Static compile is needed.
+>>>>>>> 952e7aa3d64a0645c30c748639c073fc79c6bb48
